@@ -1,0 +1,177 @@
+<div class="user-form">
+  <app-page-header
+    [title]="isEdit ? 'Editar usuario' : 'Nuevo usuario'"
+    [subtitle]="isEdit
+      ? 'Modifica los datos del pasajero / colaborador'
+      : 'Completa el formulario para registrar un nuevo usuario'"
+  />
+
+  <div class="user-form__body">
+    <!-- Form card -->
+    <div class="form-card">
+      <!-- Card header -->
+      <div class="form-card__header">
+        <div class="form-card__header-icon">
+          <span class="pi {{ isEdit ? 'pi-user-edit' : 'pi-user-plus' }}"></span>
+        </div>
+        <div>
+          <h2 class="form-card__header-title">
+            {{ isEdit ? 'Actualizar información' : 'Información del usuario' }}
+          </h2>
+          <p class="form-card__header-sub">Todos los campos marcados con * son obligatorios</p>
+        </div>
+      </div>
+
+      <!-- Form body -->
+      <form [formGroup]="form" (ngSubmit)="submit()" class="form-card__form" novalidate>
+
+        <!-- Row 1: Username + Email -->
+        <div class="form-row">
+          <div class="form-field">
+            <label class="form-field__label" for="username">
+              Nombre de usuario <span class="form-field__required">*</span>
+            </label>
+            <input
+              pInputText
+              id="username"
+              formControlName="username"
+              placeholder="ej: jdoe"
+              autocomplete="off"
+              [class.ng-invalid]="fieldInvalid('username')"
+            />
+            @if (fieldInvalid('username')) {
+              <small class="form-field__error">
+                <span class="pi pi-exclamation-circle"></span>
+                Requerido, mínimo 3 caracteres.
+              </small>
+            }
+          </div>
+
+          <div class="form-field">
+            <label class="form-field__label" for="email">
+              Email <span class="form-field__required">*</span>
+            </label>
+            <input
+              pInputText
+              id="email"
+              type="email"
+              formControlName="email"
+              placeholder="ej: john.doe@latam.com"
+              autocomplete="off"
+              [class.ng-invalid]="fieldInvalid('email')"
+            />
+            @if (fieldInvalid('email')) {
+              <small class="form-field__error">
+                <span class="pi pi-exclamation-circle"></span>
+                Ingresa un email corporativo válido.
+              </small>
+            }
+          </div>
+        </div>
+
+        <!-- Row 2: Full name + Role -->
+        <div class="form-row">
+          <div class="form-field">
+            <label class="form-field__label" for="full_name">Nombre completo</label>
+            <input
+              pInputText
+              id="full_name"
+              formControlName="full_name"
+              placeholder="ej: John Doe"
+            />
+          </div>
+
+          <div class="form-field">
+            <label class="form-field__label" for="role">
+              Rol <span class="form-field__required">*</span>
+            </label>
+            <p-select
+              id="role"
+              formControlName="role"
+              [options]="roles"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Selecciona un rol"
+              styleClass="w-full"
+            />
+          </div>
+        </div>
+
+        <!-- Password (only on create) -->
+        @if (!isEdit) {
+          <div class="form-field">
+            <label class="form-field__label" for="password">
+              Contraseña <span class="form-field__required">*</span>
+            </label>
+            <p-password
+              id="password"
+              formControlName="password"
+              placeholder="Mínimo 8 caracteres"
+              [toggleMask]="true"
+              [feedback]="true"
+              styleClass="w-full"
+              inputStyleClass="w-full"
+              [class.ng-invalid]="fieldInvalid('password')"
+            />
+            @if (fieldInvalid('password')) {
+              <small class="form-field__error">
+                <span class="pi pi-exclamation-circle"></span>
+                La contraseña es requerida (mín. 8 caracteres).
+              </small>
+            }
+          </div>
+        }
+
+        <!-- Active toggle (only on edit) -->
+        @if (isEdit) {
+          <div class="form-field form-field--toggle">
+            <p-toggleswitch formControlName="is_active" inputId="is_active" />
+            <label for="is_active" class="form-field__toggle-label">
+              Usuario activo en el sistema
+            </label>
+          </div>
+        }
+
+        <!-- Divider -->
+        <div class="form-divider"></div>
+
+        <!-- Actions -->
+        <div class="form-actions">
+          <p-button
+            type="submit"
+            [label]="isEdit ? 'Guardar cambios' : 'Crear usuario'"
+            icon="pi pi-check"
+            [loading]="userService.loading()"
+            [disabled]="form.invalid"
+          />
+          <p-button
+            type="button"
+            label="Cancelar"
+            icon="pi pi-times"
+            severity="secondary"
+            [outlined]="true"
+            (onClick)="cancel()"
+          />
+        </div>
+      </form>
+    </div>
+
+    <!-- Info panel -->
+    <div class="info-panel">
+      <div class="info-panel__header">
+        <span class="pi pi-info-circle info-panel__icon"></span>
+        <span class="info-panel__title">Roles del sistema</span>
+      </div>
+      <ul class="info-panel__list">
+        @for (role of roles; track role.value) {
+          <li class="info-panel__item">
+            <span class="info-panel__role-badge info-panel__role-badge--{{ role.value }}">
+              {{ role.label }}
+            </span>
+            <span class="info-panel__role-desc">{{ roleDescriptions[role.value] }}</span>
+          </li>
+        }
+      </ul>
+    </div>
+  </div>
+</div>

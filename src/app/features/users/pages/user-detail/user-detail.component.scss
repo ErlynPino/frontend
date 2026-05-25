@@ -1,0 +1,243 @@
+.user-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.detail-layout {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: 20px;
+  align-items: start;
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// ── Detail Card ────────────────────────────────────────────────────────
+.detail-card {
+  background: var(--surface-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 28px;
+    background: linear-gradient(135deg, var(--latam-navy) 0%, var(--latam-navy-light) 100%);
+    border-bottom: 3px solid var(--latam-red);
+  }
+
+  &__avatar {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 28px;
+    font-weight: 900;
+    flex-shrink: 0;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+
+  &__profile-info {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  &__name {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 800;
+    color: white;
+    line-height: 1.2;
+  }
+
+  &__email {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.6);
+  }
+
+  &__badges {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+  }
+
+  &__fields {
+    padding: 24px 28px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+
+    @media (max-width: 600px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    gap: 12px;
+    padding: 20px 28px;
+    border-top: 1px solid var(--border-color);
+    background: #FAFBFC;
+    flex-wrap: wrap;
+  }
+}
+
+// ── Detail Fields ──────────────────────────────────────────────────────
+.detail-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  &__label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  &__icon {
+    font-size: 11px;
+    color: var(--latam-red);
+  }
+
+  &__value {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-primary);
+
+    &--mono {
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 13px;
+      color: var(--latam-navy);
+      font-weight: 700;
+    }
+  }
+}
+
+// ── Activity Panel ─────────────────────────────────────────────────────
+.activity-panel {
+  background: var(--surface-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 20px;
+    background: var(--latam-red-subtle);
+    border-bottom: 1px solid #fecdd3;
+  }
+
+  &__icon {
+    color: var(--latam-red);
+    font-size: 16px;
+  }
+
+  &__title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--latam-red-dark);
+  }
+
+  &__list {
+    list-style: none;
+    margin: 0;
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+}
+
+.activity-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+
+  &__icon {
+    font-size: 18px;
+    flex-shrink: 0;
+    margin-top: 2px;
+
+    &--blue  { color: var(--latam-sky); }
+    &--green { color: #16a34a; }
+    &--gray  { color: var(--text-muted); }
+    &--navy  { color: var(--latam-navy); }
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  &__label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  &__value {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+}
+
+// ── Not Found ──────────────────────────────────────────────────────────
+.not-found {
+  padding: 80px 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+
+  &__icon {
+    width: 80px;
+    height: 80px;
+    background: var(--latam-red-subtle);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .pi {
+      font-size: 32px;
+      color: var(--latam-red);
+    }
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--latam-navy);
+  }
+
+  &__text {
+    margin: 0;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+}

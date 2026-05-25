@@ -1,0 +1,169 @@
+@use "tailwindcss";
+@import "primeicons/primeicons.css";
+
+/* ══════════════════════════════════════════════════════════════════
+   LATAM Airlines Design System — Global Styles
+   ══════════════════════════════════════════════════════════════════ */
+:root {
+  /* Brand */
+  --latam-red:          #E40613;
+  --latam-red-dark:     #C1000F;
+  --latam-red-light:    #FF1A2A;
+  --latam-red-subtle:   #FFF0F1;
+  --latam-navy:         #002B5C;
+  --latam-navy-dark:    #001A3A;
+  --latam-navy-light:   #003D82;
+  --latam-sky:          #00A3E0;
+  --latam-sky-light:    #E6F6FD;
+  --latam-gold:         #F5A623;
+
+  /* Surface */
+  --surface-bg:         #F0F2F7;
+  --surface-card:       #FFFFFF;
+  --surface-hover:      #F8F9FC;
+
+  /* Text */
+  --text-primary:       #1A1A2E;
+  --text-secondary:     #64748B;
+  --text-muted:         #94A3B8;
+
+  /* Border */
+  --border-color:       #E2E8F0;
+  --border-strong:      #CBD5E1;
+
+  /* Shadows */
+  --shadow-xs:  0 1px 2px rgba(0,0,0,0.05);
+  --shadow-sm:  0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md:  0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.05);
+  --shadow-lg:  0 10px 15px rgba(0,0,0,0.1), 0 4px 6px rgba(0,0,0,0.05);
+  --shadow-xl:  0 20px 25px rgba(0,0,0,0.1), 0 10px 10px rgba(0,0,0,0.04);
+
+  /* Radii */
+  --radius-sm:  6px;
+  --radius-md:  10px;
+  --radius-lg:  14px;
+  --radius-xl:  20px;
+
+  /* Transitions */
+  --transition-fast:    150ms ease;
+  --transition-normal:  250ms ease;
+}
+
+/* ── Base ──────────────────────────────────────────────────────────── */
+* { box-sizing: border-box; }
+
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+               Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-size: 14px;
+  background-color: var(--surface-bg);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Typography helpers ────────────────────────────────────────────── */
+.text-muted  { color: var(--text-muted) !important; }
+.text-secondary { color: var(--text-secondary) !important; }
+.text-brand  { color: var(--latam-red) !important; }
+
+/* ── PrimeNG Global Overrides ──────────────────────────────────────── */
+.p-component { font-family: inherit; }
+
+/* Buttons — LATAM Red as default primary */
+.p-button:not([severity]):not(.p-button-outlined):not(.p-button-text):not(.p-button-link) {
+  background: var(--latam-red);
+  border-color: var(--latam-red);
+  font-weight: 600;
+
+  &:hover:not(:disabled) {
+    background: var(--latam-red-dark);
+    border-color: var(--latam-red-dark);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--latam-red);
+    outline-offset: 2px;
+  }
+}
+
+/* Cards */
+.p-card {
+  border-radius: var(--radius-lg) !important;
+  box-shadow: var(--shadow-sm) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+/* Table — LATAM themed */
+.latam-table {
+  .p-datatable-thead > tr > th {
+    background: #F8FAFC !important;
+    border-bottom: 2px solid var(--latam-red) !important;
+    color: var(--latam-navy) !important;
+    font-weight: 700 !important;
+    font-size: 11px !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.06em !important;
+    padding: 14px 16px !important;
+  }
+
+  .p-datatable-tbody > tr {
+    transition: background var(--transition-fast);
+
+    &:hover {
+      background: var(--latam-red-subtle) !important;
+    }
+
+    > td {
+      padding: 12px 16px !important;
+      border-bottom: 1px solid var(--border-color) !important;
+      font-size: 13px;
+      color: var(--text-primary);
+    }
+  }
+
+  .p-paginator {
+    border-top: 1px solid var(--border-color) !important;
+    background: #FAFBFC !important;
+    padding: 12px 16px !important;
+    font-size: 13px;
+  }
+}
+
+/* Tags */
+.p-tag {
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  padding: 3px 10px !important;
+}
+
+/* Dialog */
+.p-confirmdialog {
+  border-radius: var(--radius-lg) !important;
+}
+
+/* Toast */
+.p-toast-message {
+  border-radius: var(--radius-md) !important;
+  box-shadow: var(--shadow-lg) !important;
+}
+
+/* Inputs */
+.p-inputtext {
+  border-radius: var(--radius-sm) !important;
+  border-color: var(--border-color) !important;
+  font-size: 13px !important;
+
+  &:focus {
+    border-color: var(--latam-red) !important;
+    box-shadow: 0 0 0 3px rgba(228, 6, 19, 0.12) !important;
+  }
+}
+
+/* Skeleton animation */
+.p-skeleton {
+  border-radius: var(--radius-sm) !important;
+}
+

@@ -1,0 +1,160 @@
+<div class="user-detail">
+    <app-page-header title="Detalle de usuario" />
+
+    @if (userService.loading()) {
+    <!-- Skeleton -->
+    <div class="detail-card">
+        <div class="detail-card__profile">
+            <p-skeleton shape="circle" size="72px" />
+            <div class="detail-card__profile-info">
+                <p-skeleton width="180px" height="22px" />
+                <p-skeleton width="130px" height="16px" class="mt-2" />
+            </div>
+        </div>
+        <div class="detail-card__fields">
+            @for (i of [1,2,3,4,5,6]; track i) {
+            <div class="detail-field">
+                <p-skeleton width="80px" height="12px" />
+                <p-skeleton width="140px" height="18px" class="mt-2" />
+            </div>
+            }
+        </div>
+    </div>
+
+    } @else if (user()) {
+    <div class="detail-layout">
+        <!-- Profile Card -->
+        <div class="detail-card">
+            <!-- Profile header -->
+            <div class="detail-card__header">
+                <div class="detail-card__avatar" [style.background]="avatarColor(user()!.username)">
+                    {{ user()!.username.charAt(0).toUpperCase() }}
+                </div>
+                <div class="detail-card__profile-info">
+                    <h2 class="detail-card__name">
+                        {{ user()!.full_name || user()!.username }}
+                    </h2>
+                    <span class="detail-card__email">{{ user()!.email }}</span>
+                    <div class="detail-card__badges">
+                        <p-tag [value]="roleLabel(user()!.role)" [severity]="roleSeverity(user()!.role)"
+                            [rounded]="true" />
+                        <p-tag [value]="user()!.is_active ? 'Activo' : 'Inactivo'"
+                            [severity]="user()!.is_active ? 'success' : 'secondary'" [rounded]="true" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data fields -->
+            <div class="detail-card__fields">
+                <div class="detail-field">
+                    <dt class="detail-field__label">
+                        <span class="pi pi-hashtag detail-field__icon"></span>
+                        ID de usuario
+                    </dt>
+                    <dd class="detail-field__value detail-field__value--mono">{{ user()!.id }}</dd>
+                </div>
+
+                <div class="detail-field">
+                    <dt class="detail-field__label">
+                        <span class="pi pi-user detail-field__icon"></span>
+                        Nombre de usuario
+                    </dt>
+                    <dd class="detail-field__value">{{ user()!.username }}</dd>
+                </div>
+
+                <div class="detail-field">
+                    <dt class="detail-field__label">
+                        <span class="pi pi-envelope detail-field__icon"></span>
+                        Email
+                    </dt>
+                    <dd class="detail-field__value">{{ user()!.email }}</dd>
+                </div>
+
+                <div class="detail-field">
+                    <dt class="detail-field__label">
+                        <span class="pi pi-id-card detail-field__icon"></span>
+                        Nombre completo
+                    </dt>
+                    <dd class="detail-field__value">{{ user()!.full_name || '—' }}</dd>
+                </div>
+
+                <div class="detail-field">
+                    <dt class="detail-field__label">
+                        <span class="pi pi-calendar detail-field__icon"></span>
+                        Fecha de registro
+                    </dt>
+                    <dd class="detail-field__value">
+                        {{ user()!.created_at | date: 'dd MMM yyyy, HH:mm' }}
+                    </dd>
+                </div>
+
+                <div class="detail-field">
+                    <dt class="detail-field__label">
+                        <span class="pi pi-refresh detail-field__icon"></span>
+                        Última actualización
+                    </dt>
+                    <dd class="detail-field__value">
+                        {{ user()!.updated_at | date: 'dd MMM yyyy, HH:mm' }}
+                    </dd>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="detail-card__actions">
+                <p-button label="Editar usuario" icon="pi pi-pencil" (onClick)="edit()" />
+                <p-button label="Volver al listado" icon="pi pi-arrow-left" severity="secondary" [outlined]="true"
+                    (onClick)="back()" />
+            </div>
+        </div>
+
+        <!-- Activity Panel -->
+        <div class="activity-panel">
+            <div class="activity-panel__header">
+                <span class="pi pi-history activity-panel__icon"></span>
+                <span class="activity-panel__title">Resumen de cuenta</span>
+            </div>
+            <ul class="activity-panel__list">
+                <li class="activity-item">
+                    <span class="activity-item__icon activity-item__icon--blue pi pi-shield"></span>
+                    <div class="activity-item__body">
+                        <span class="activity-item__label">Rol asignado</span>
+                        <span class="activity-item__value">{{ roleLabel(user()!.role) }}</span>
+                    </div>
+                </li>
+                <li class="activity-item">
+                    <span class="activity-item__icon pi pi-check-circle"
+                        [class.activity-item__icon--green]="user()!.is_active"
+                        [class.activity-item__icon--gray]="!user()!.is_active"></span>
+                    <div class="activity-item__body">
+                        <span class="activity-item__label">Estado</span>
+                        <span class="activity-item__value">
+                            {{ user()!.is_active ? 'Cuenta activa' : 'Cuenta inactiva' }}
+                        </span>
+                    </div>
+                </li>
+                <li class="activity-item">
+                    <span class="activity-item__icon activity-item__icon--navy pi pi-calendar-plus"></span>
+                    <div class="activity-item__body">
+                        <span class="activity-item__label">Miembro desde</span>
+                        <span class="activity-item__value">
+                            {{ user()!.created_at | date: 'MMMM yyyy' }}
+                        </span>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    } @else {
+    <!-- Not found -->
+    <div class="not-found">
+        <div class="not-found__icon">
+            <span class="pi pi-exclamation-circle"></span>
+        </div>
+        <h2 class="not-found__title">Usuario no encontrado</h2>
+        <p class="not-found__text">El usuario que buscas no existe o fue eliminado.</p>
+        <p-button label="Volver al listado" icon="pi pi-arrow-left" severity="secondary" [outlined]="true"
+            (onClick)="back()" />
+    </div>
+    }
+</div>

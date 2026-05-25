@@ -1,0 +1,164 @@
+.user-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+// ── Stats Row ──────────────────────────────────────────────────────────
+.user-list__stats {
+  display: flex;
+  gap: 16px;
+}
+
+.stat-card {
+  background: var(--surface-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 18px 22px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: var(--shadow-sm);
+  flex: 1;
+  transition: box-shadow var(--transition-fast), transform var(--transition-fast);
+
+  &:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
+  }
+
+  &__icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    .pi { font-size: 20px; }
+
+    &--navy {
+      background: #EEF2FF;
+      .pi { color: var(--latam-navy); }
+    }
+
+    &--green {
+      background: #F0FDF4;
+      .pi { color: #16a34a; }
+    }
+
+    &--red {
+      background: var(--latam-red-subtle);
+      .pi { color: var(--latam-red); }
+    }
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  &__value {
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--text-primary);
+    line-height: 1;
+  }
+
+  &__label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+}
+
+// ── Table Card ─────────────────────────────────────────────────────────
+.user-list__card {
+  background: var(--surface-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+// Table cells
+.th-actions { text-align: center !important; }
+
+.td-fullname { font-weight: 500; color: var(--text-primary); }
+.td-email    { color: var(--text-secondary); font-size: 12px; }
+.td-date     { color: var(--text-muted); font-size: 12px; }
+
+// Username cell with avatar
+.user-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  &__avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+  }
+
+  &__name {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 13px;
+  }
+}
+
+// Action buttons group
+.action-btns {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+
+// ── Empty state ────────────────────────────────────────────────────────
+.empty-state {
+  padding: 60px 24px;
+  text-align: center;
+
+  &__icon {
+    width: 72px;
+    height: 72px;
+    background: var(--latam-red-subtle);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+
+    .pi {
+      font-size: 28px;
+      color: var(--latam-red);
+      opacity: 0.7;
+    }
+  }
+
+  &__title {
+    margin: 0 0 8px;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--latam-navy);
+  }
+
+  &__text {
+    margin: 0;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+}

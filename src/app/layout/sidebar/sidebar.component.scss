@@ -1,0 +1,182 @@
+.sidebar {
+  width: 256px;
+  min-height: 100vh;
+  background: linear-gradient(175deg, var(--latam-navy-dark) 0%, var(--latam-navy) 100%);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+
+  // Red top stripe — LATAM identity
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--latam-red) 0%, var(--latam-red-light) 100%);
+    z-index: 1;
+  }
+
+  // ── Brand / Logo ──────────────────────────────────────────────────
+  &__brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 24px 20px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  &__brand-logo {
+    width: 44px;
+    height: 44px;
+    background: var(--latam-red);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(228, 6, 19, 0.4);
+  }
+
+  &__brand-icon {
+    color: white;
+    font-size: 18px;
+    transform: rotate(-45deg);
+    display: block;
+  }
+
+  &__brand-name {
+    display: block;
+    color: white;
+    font-size: 20px;
+    font-weight: 900;
+    letter-spacing: 0.12em;
+    line-height: 1;
+  }
+
+  &__brand-sub {
+    display: block;
+    color: rgba(255, 255, 255, 0.45);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-top: 3px;
+  }
+
+  // ── Navigation ────────────────────────────────────────────────────
+  &__nav {
+    flex: 1;
+    padding: 16px 10px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+  }
+
+  &__section {
+    margin-bottom: 20px;
+  }
+
+  &__section-label {
+    display: block;
+    color: rgba(255, 255, 255, 0.28);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 0 12px;
+    margin-bottom: 6px;
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    color: rgba(255, 255, 255, 0.6);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all var(--transition-fast);
+    margin-bottom: 2px;
+    position: relative;
+    cursor: pointer;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: white;
+    }
+
+    // Active state — LATAM red highlight
+    &--active {
+      background: var(--latam-red) !important;
+      color: white !important;
+      box-shadow: 0 2px 8px rgba(228, 6, 19, 0.35);
+
+      .sidebar__item-icon {
+        color: white;
+      }
+
+      &::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 3px;
+        height: 55%;
+        background: rgba(255, 255, 255, 0.6);
+        border-radius: 0 3px 3px 0;
+      }
+    }
+  }
+
+  &__item-icon {
+    font-size: 15px;
+    width: 18px;
+    text-align: center;
+    flex-shrink: 0;
+    transition: color var(--transition-fast);
+  }
+
+  &__item-label {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  // ── Footer ────────────────────────────────────────────────────────
+  &__footer {
+    padding: 14px 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  &__footer-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  &__footer-dot {
+    width: 7px;
+    height: 7px;
+    background: #22c55e;
+    border-radius: 50%;
+    flex-shrink: 0;
+    box-shadow: 0 0 6px rgba(34, 197, 94, 0.6);
+    animation: pulse-dot 2s infinite;
+  }
+
+  &__footer-text {
+    color: rgba(255, 255, 255, 0.3);
+    font-size: 11px;
+  }
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
+}

@@ -1,0 +1,177 @@
+<div class="user-list">
+
+  <!-- Page Header -->
+  <app-page-header
+    title="Usuarios"
+    subtitle="Gestión completa de usuarios del sistema"
+    actionLabel="Nuevo usuario"
+    (action)="navigateToCreate()"
+  />
+
+  <!-- Stats Row -->
+  <div class="user-list__stats">
+    <div class="stat-card">
+      <div class="stat-card__icon stat-card__icon--navy">
+        <span class="pi pi-users"></span>
+      </div>
+      <div class="stat-card__body">
+        <span class="stat-card__value">{{ userService.total() }}</span>
+        <span class="stat-card__label">Total</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-card__icon stat-card__icon--green">
+        <span class="pi pi-check-circle"></span>
+      </div>
+      <div class="stat-card__body">
+        <span class="stat-card__value">{{ userService.activeUsers().length }}</span>
+        <span class="stat-card__label">Activos</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-card__icon stat-card__icon--red">
+        <span class="pi pi-times-circle"></span>
+      </div>
+      <div class="stat-card__body">
+        <span class="stat-card__value">{{ userService.inactiveUsers().length }}</span>
+        <span class="stat-card__label">Inactivos</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Table Card -->
+  <div class="user-list__card">
+    <p-table
+      [value]="userService.loading() ? skeletonRows : userService.users()"
+      [paginator]="true"
+      [rows]="10"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} usuarios"
+      styleClass="p-datatable-sm latam-table"
+      [tableStyle]="{ 'min-width': '60rem' }"
+    >
+      <ng-template #header>
+        <tr>
+          <th pSortableColumn="username">
+            Usuario <p-sortIcon field="username" />
+          </th>
+          <th pSortableColumn="full_name">
+            Nombre completo <p-sortIcon field="full_name" />
+          </th>
+          <th>Email</th>
+          <th pSortableColumn="role">Rol <p-sortIcon field="role" /></th>
+          <th>Estado</th>
+          <th pSortableColumn="created_at">
+            Creado <p-sortIcon field="created_at" />
+          </th>
+          <th class="th-actions">Acciones</th>
+        </tr>
+      </ng-template>
+
+      <ng-template #body let-user>
+        @if (userService.loading()) {
+          <tr>
+            @for (col of [1,2,3,4,5,6,7]; track col) {
+              <td><p-skeleton height="1.4rem" /></td>
+            }
+          </tr>
+        } @else {
+          <tr>
+            <!-- Username + Avatar -->
+            <td>
+              <div class="user-cell">
+                <div
+                  class="user-cell__avatar"
+                  [style.background]="avatarColor(user.username)"
+                >
+                  {{ user.username.charAt(0).toUpperCase() }}
+                </div>
+                <span class="user-cell__name">{{ user.username }}</span>
+              </div>
+            </td>
+
+            <!-- Full name -->
+            <td class="td-fullname">{{ user.full_name || '—' }}</td>
+
+            <!-- Email -->
+            <td class="td-email">{{ user.email }}</td>
+
+            <!-- Role -->
+            <td>
+              <p-tag
+                [value]="roleLabel(user.role)"
+                [severity]="roleSeverity(user.role)"
+                [rounded]="true"
+              />
+            </td>
+
+            <!-- Status -->
+            <td>
+              <p-tag
+                [value]="user.is_active ? 'Activo' : 'Inactivo'"
+                [severity]="user.is_active ? 'success' : 'secondary'"
+                [rounded]="true"
+              />
+            </td>
+
+            <!-- Created At -->
+            <td class="td-date">{{ user.created_at | date: 'dd/MM/yyyy' }}</td>
+
+            <!-- Actions -->
+            <td>
+              <div class="action-btns">
+                <p-button
+                  icon="pi pi-eye"
+                  severity="secondary"
+                  [text]="true"
+                  [rounded]="true"
+                  pTooltip="Ver detalle"
+                  tooltipPosition="top"
+                  (onClick)="viewUser(user)"
+                />
+                <p-button
+                  icon="pi pi-pencil"
+                  severity="info"
+                  [text]="true"
+                  [rounded]="true"
+                  pTooltip="Editar"
+                  tooltipPosition="top"
+                  (onClick)="editUser(user)"
+                />
+                <p-button
+                  icon="pi pi-trash"
+                  severity="danger"
+                  [text]="true"
+                  [rounded]="true"
+                  pTooltip="Eliminar"
+                  tooltipPosition="top"
+                  (onClick)="confirmDelete(user)"
+                />
+              </div>
+            </td>
+          </tr>
+        }
+      </ng-template>
+
+      <!-- Empty state -->
+      <ng-template #empty>
+        <tr>
+          <td colspan="7">
+            <div class="empty-state">
+              <div class="empty-state__icon">
+                <span class="pi pi-users"></span>
+              </div>
+              <h3 class="empty-state__title">No hay usuarios registrados</h3>
+              <p class="empty-state__text">
+                Crea el primero haciendo clic en "Nuevo usuario"
+              </p>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>

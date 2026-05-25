@@ -93,7 +93,6 @@ export class UserFormComponent implements OnInit {
     const value = this.form.getRawValue();
 
     if (this.isEdit) {
-      // PUT = reemplazo completo (todos los campos del formulario)
       const updatePayload = {
         ...value,
         first_name: value.first_name.trim(),

@@ -7,6 +7,7 @@ describe('PageHeaderComponent', () => {
   let fixture: ComponentFixture<PageHeaderComponent>;
 
   beforeEach(async () => {
+    TestBed.resetTestingModule();
     await TestBed.configureTestingModule({
       imports: [PageHeaderComponent],
     }).compileComponents();
@@ -60,3 +61,4 @@ describe('PageHeaderComponent', () => {
     expect(emitSpy).toHaveBeenCalled();
   });
 });
+

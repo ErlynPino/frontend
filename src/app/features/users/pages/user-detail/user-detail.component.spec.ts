@@ -1,26 +1,32 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { RouterTestingModule } from '@angular/router/testing';
+import { Component } from '@angular/core';
+import { provideRouter } from '@angular/router';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { signal } from '@angular/core';
+import { of } from 'rxjs';
 import { UserDetailComponent } from './user-detail.component';
 import { UserService } from '../../../../core/services/user.service';
-import { UserRole } from '../../../../core/models/user.model';
+import { User, UserRole } from '../../../../core/models/user.model';
 
-const mockUser = {
-  id: 1,
+@Component({ standalone: true, template: '' })
+class DummyComponent {}
+
+const mockUser: User = {
+  id: 'uuid-1',
   username: 'jdoe',
-  full_name: 'John Doe',
-  email: 'jdoe@latam.com',
+  first_name: 'John',
+  last_name: 'Doe',
+  email: 'jdoe@example.com',
   role: 'admin' as UserRole,
-  is_active: true,
+  active: true,
   created_at: '2024-01-15T10:00:00Z',
   updated_at: '2024-03-20T14:30:00Z',
 };
 
 const userServiceMock = {
   loading: signal(false),
-  selectedUser: signal(mockUser),
-  getById: jest.fn().mockReturnValue({ subscribe: jest.fn() }),
+  selectedUser: signal<User | null>(mockUser),
+  getById: jest.fn().mockReturnValue(of(mockUser)),
 };
 
 describe('UserDetailComponent', () => {
@@ -28,14 +34,21 @@ describe('UserDetailComponent', () => {
   let fixture: ComponentFixture<UserDetailComponent>;
 
   beforeEach(async () => {
+    TestBed.resetTestingModule();
     await TestBed.configureTestingModule({
-      imports: [UserDetailComponent, RouterTestingModule, NoopAnimationsModule],
-      providers: [{ provide: UserService, useValue: userServiceMock }],
+      imports: [UserDetailComponent, NoopAnimationsModule],
+      providers: [
+        provideRouter([
+          { path: 'users', component: DummyComponent },
+          { path: 'users/:id/edit', component: DummyComponent },
+        ]),
+        { provide: UserService, useValue: userServiceMock },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(UserDetailComponent);
     component = fixture.componentInstance;
-    fixture.componentRef.setInput('id', '1');
+    fixture.componentRef.setInput('id', 'uuid-1');
     fixture.detectChanges();
   });
 
@@ -43,24 +56,37 @@ describe('UserDetailComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should call getById on init with the correct id', () => {
-    expect(userServiceMock.getById).toHaveBeenCalledWith(1);
+  it('llama getById con el UUID correcto al inicializar', () => {
+    expect(userServiceMock.getById).toHaveBeenCalledWith('uuid-1');
   });
 
-  it('should return correct avatar color', () => {
+  it('avatarColor devuelve un color hexadecimal válido', () => {
     const color = component.avatarColor('jdoe');
     expect(color).toMatch(/^#[0-9A-Fa-f]{6}$/);
   });
 
-  it('should return correct role labels', () => {
+  it('roleLabel devuelve etiqueta correcta para admin', () => {
     expect(component.roleLabel('admin')).toBe('Administrador');
-    expect(component.roleLabel('moderator')).toBe('Moderador');
+  });
+
+  it('roleLabel devuelve "Invitado" para guest (no "Moderador")', () => {
+    expect(component.roleLabel('guest')).toBe('Invitado');
+  });
+
+  it('roleLabel devuelve "Usuario" para user', () => {
     expect(component.roleLabel('user')).toBe('Usuario');
   });
 
-  it('should return correct severity for role', () => {
+  it('roleSeverity devuelve "danger" para admin', () => {
     expect(component.roleSeverity('admin')).toBe('danger');
-    expect(component.roleSeverity('moderator')).toBe('warn');
+  });
+
+  it('roleSeverity devuelve "secondary" para guest', () => {
+    expect(component.roleSeverity('guest')).toBe('secondary');
+  });
+
+  it('roleSeverity devuelve "info" para user', () => {
     expect(component.roleSeverity('user')).toBe('info');
   });
 });
+

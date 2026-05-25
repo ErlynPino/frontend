@@ -3,7 +3,6 @@ import { Router } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
-import { PasswordModule } from 'primeng/password';
 import { SelectModule } from 'primeng/select';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { UserService } from '../../../../core/services/user.service';
@@ -12,13 +11,13 @@ import { UserRole } from '../../../../core/models/user.model';
 
 const ROLES: { label: string; value: UserRole }[] = [
   { label: 'Administrador', value: 'admin' },
-  { label: 'Moderador', value: 'moderator' },
+  { label: 'Invitado', value: 'guest' },
   { label: 'Usuario', value: 'user' },
 ];
 
 const ROLE_DESCRIPTIONS: Record<string, string> = {
   admin: 'Acceso total al sistema. Puede gestionar usuarios y configuración.',
-  moderator: 'Puede revisar y moderar contenido, sin acceso a configuración.',
+  guest: 'Acceso de solo lectura como invitado. Sin permisos de escritura.',
   user: 'Acceso estándar de solo lectura al portal.',
 };
 
@@ -30,7 +29,6 @@ const ROLE_DESCRIPTIONS: Record<string, string> = {
     ReactiveFormsModule,
     ButtonModule,
     InputTextModule,
-    PasswordModule,
     SelectModule,
     ToggleSwitchModule,
     PageHeaderComponent,
@@ -47,12 +45,12 @@ export class UserFormComponent implements OnInit {
   readonly roleDescriptions = ROLE_DESCRIPTIONS;
 
   readonly form = this.fb.nonNullable.group({
-    username:  ['', [Validators.required, Validators.minLength(3)]],
-    email:     ['', [Validators.required, Validators.email]],
-    full_name: [''],
-    password:  ['', [Validators.minLength(8)]],
-    role:      ['user' as UserRole, Validators.required],
-    is_active: [true],
+    username:   ['', [Validators.required, Validators.minLength(3), Validators.pattern(/^[a-zA-Z0-9_-]+$/)]],
+    email:      ['', [Validators.required, Validators.email]],
+    first_name: ['', Validators.required],
+    last_name:  ['', Validators.required],
+    role:       ['user' as UserRole, Validators.required],
+    active:     [true],
   });
 
   get isEdit(): boolean {
@@ -61,23 +59,23 @@ export class UserFormComponent implements OnInit {
 
   ngOnInit(): void {
     if (this.isEdit) {
-      this.form.get('password')?.clearValidators();
-      this.form.get('password')?.updateValueAndValidity();
+        this.form.get('first_name')?.clearValidators();
+      this.form.get('first_name')?.updateValueAndValidity();
+      this.form.get('last_name')?.clearValidators();
+      this.form.get('last_name')?.updateValueAndValidity();
 
-      this.userService.getById(+this.id()!).subscribe((user) => {
+      this.userService.getById(this.id()!).subscribe((user) => {
         if (user) {
           this.form.patchValue({
-            username:  user.username,
-            email:     user.email,
-            full_name: user.full_name ?? '',
-            role:      user.role,
-            is_active: user.is_active,
+            username:   user.username,
+            email:      user.email,
+            first_name: user.first_name ?? '',
+            last_name:  user.last_name ?? '',
+            role:       user.role,
+            active:     user.active,
           });
         }
       });
-    } else {
-      this.form.get('password')?.addValidators(Validators.required);
-      this.form.get('password')?.updateValueAndValidity();
     }
   }
 
@@ -95,12 +93,22 @@ export class UserFormComponent implements OnInit {
     const value = this.form.getRawValue();
 
     if (this.isEdit) {
-      const { password, ...rest } = value;
-      this.userService.update(+this.id()!, rest).subscribe(() => {
+      // PUT = reemplazo completo (todos los campos del formulario)
+      const updatePayload = {
+        ...value,
+        first_name: value.first_name.trim(),
+        last_name:  value.last_name.trim(),
+      };
+      this.userService.fullUpdate(this.id()!, updatePayload).subscribe(() => {
         this.router.navigate(['/users']);
       });
     } else {
-      this.userService.create(value).subscribe(() => {
+      const createPayload = {
+        ...value,
+        first_name: value.first_name.trim(),
+        last_name:  value.last_name.trim(),
+      };
+      this.userService.create(createPayload).subscribe(() => {
         this.router.navigate(['/users']);
       });
     }

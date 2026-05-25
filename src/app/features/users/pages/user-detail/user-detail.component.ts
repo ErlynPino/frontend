@@ -35,12 +35,12 @@ export class UserDetailComponent implements OnInit {
 
   private static readonly ROLE_LABELS: Record<UserRole, string> = {
     admin: 'Administrador',
-    moderator: 'Moderador',
+    guest: 'Invitado',
     user: 'Usuario',
   };
 
   ngOnInit(): void {
-    this.userService.getById(+this.id()).subscribe();
+    this.userService.getById(this.id()).subscribe();
   }
 
   avatarColor(username: string): string {
@@ -55,7 +55,7 @@ export class UserDetailComponent implements OnInit {
   roleSeverity(role: UserRole): 'success' | 'info' | 'warn' | 'danger' | 'secondary' {
     const map: Record<string, 'success' | 'info' | 'warn' | 'danger' | 'secondary'> = {
       admin: 'danger',
-      moderator: 'warn',
+      guest: 'secondary',
       user: 'info',
     };
     return map[role] ?? 'secondary';

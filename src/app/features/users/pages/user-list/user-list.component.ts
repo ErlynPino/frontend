@@ -39,13 +39,13 @@ export class UserListComponent implements OnInit {
 
   private static readonly ROLE_LABELS: Record<UserRole, string> = {
     admin: 'Administrador',
-    moderator: 'Moderador',
+    guest: 'Invitado',
     user: 'Usuario',
   };
 
   private static readonly ROLE_SEVERITY: Record<string, 'success' | 'info' | 'warn' | 'danger' | 'secondary'> = {
     admin: 'danger',
-    moderator: 'warn',
+    guest: 'secondary',
     user: 'info',
   };
 
@@ -90,6 +90,11 @@ export class UserListComponent implements OnInit {
         this.userService.delete(user.id).subscribe();
       },
     });
+  }
+
+  /** PATCH — toggle rápido de estado activo/inactivo sin abrir el formulario. */
+  toggleStatus(user: User): void {
+    this.userService.update(user.id, { active: !user.active }).subscribe();
   }
 }
 

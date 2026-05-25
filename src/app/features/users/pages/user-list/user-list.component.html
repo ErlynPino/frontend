@@ -58,8 +58,8 @@
           <th pSortableColumn="username">
             Usuario <p-sortIcon field="username" />
           </th>
-          <th pSortableColumn="full_name">
-            Nombre completo <p-sortIcon field="full_name" />
+          <th pSortableColumn="last_name">
+            Nombre completo <p-sortIcon field="last_name" />
           </th>
           <th>Email</th>
           <th pSortableColumn="role">Rol <p-sortIcon field="role" /></th>
@@ -94,7 +94,7 @@
             </td>
 
             <!-- Full name -->
-            <td class="td-fullname">{{ user.full_name || '—' }}</td>
+            <td class="td-fullname">{{ (user.first_name + ' ' + user.last_name).trim() || '—' }}</td>
 
             <!-- Email -->
             <td class="td-email">{{ user.email }}</td>
@@ -111,8 +111,8 @@
             <!-- Status -->
             <td>
               <p-tag
-                [value]="user.is_active ? 'Activo' : 'Inactivo'"
-                [severity]="user.is_active ? 'success' : 'secondary'"
+                [value]="user.active ? 'Activo' : 'Inactivo'"
+                [severity]="user.active ? 'success' : 'secondary'"
                 [rounded]="true"
               />
             </td>
@@ -149,6 +149,15 @@
                   pTooltip="Eliminar"
                   tooltipPosition="top"
                   (onClick)="confirmDelete(user)"
+                />
+                <p-button
+                  [icon]="user.active ? 'pi pi-ban' : 'pi pi-check-circle'"
+                  [severity]="user.active ? 'warn' : 'success'"
+                  [text]="true"
+                  [rounded]="true"
+                  [pTooltip]="user.active ? 'Desactivar' : 'Activar'"
+                  tooltipPosition="top"
+                  (onClick)="toggleStatus(user)"
                 />
               </div>
             </td>

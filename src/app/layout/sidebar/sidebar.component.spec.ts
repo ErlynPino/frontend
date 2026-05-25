@@ -7,6 +7,7 @@ describe('SidebarComponent', () => {
   let fixture: ComponentFixture<SidebarComponent>;
 
   beforeEach(async () => {
+    TestBed.resetTestingModule();
     await TestBed.configureTestingModule({
       imports: [SidebarComponent, RouterTestingModule],
     }).compileComponents();
@@ -41,3 +42,4 @@ describe('SidebarComponent', () => {
     expect(links.length).toBeGreaterThan(0);
   });
 });
+

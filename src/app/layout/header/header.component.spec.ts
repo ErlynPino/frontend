@@ -6,6 +6,7 @@ describe('HeaderComponent', () => {
   let fixture: ComponentFixture<HeaderComponent>;
 
   beforeEach(async () => {
+    TestBed.resetTestingModule();
     await TestBed.configureTestingModule({
       imports: [HeaderComponent],
     }).compileComponents();
@@ -34,3 +35,4 @@ describe('HeaderComponent', () => {
     expect(el.querySelector('.topbar__breadcrumb')).toBeTruthy();
   });
 });
+

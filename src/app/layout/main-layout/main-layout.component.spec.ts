@@ -8,6 +8,7 @@ describe('MainLayoutComponent', () => {
   let fixture: ComponentFixture<MainLayoutComponent>;
 
   beforeEach(async () => {
+    TestBed.resetTestingModule();
     await TestBed.configureTestingModule({
       imports: [MainLayoutComponent, RouterTestingModule, NoopAnimationsModule],
     }).compileComponents();
@@ -36,3 +37,4 @@ describe('MainLayoutComponent', () => {
     expect(el.querySelector('router-outlet')).toBeTruthy();
   });
 });
+

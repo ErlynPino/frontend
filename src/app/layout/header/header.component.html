@@ -11,8 +11,20 @@
   <!-- Right: Status + User -->
   <div class="topbar__right">
     <div class="topbar__status">
-      <span class="topbar__status-dot"></span>
-      <span class="topbar__status-label">API conectada</span>
+      @switch (apiStatus()) {
+        @case ('ok') {
+          <span class="topbar__status-dot topbar__status-dot--ok"></span>
+          <span class="topbar__status-label">API operativa</span>
+        }
+        @case ('error') {
+          <span class="topbar__status-dot topbar__status-dot--error"></span>
+          <span class="topbar__status-label">API no disponible</span>
+        }
+        @default {
+          <span class="topbar__status-dot topbar__status-dot--checking"></span>
+          <span class="topbar__status-label">Verificando...</span>
+        }
+      }
     </div>
 
     <div class="topbar__divider"></div>

@@ -1,16 +1,35 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { RouterTestingModule } from '@angular/router/testing';
+import { Component } from '@angular/core';
+import { provideRouter } from '@angular/router';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { signal } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
+import { of } from 'rxjs';
 import { UserFormComponent } from './user-form.component';
 import { UserService } from '../../../../core/services/user.service';
+import { User } from '../../../../core/models/user.model';
+
+@Component({ standalone: true, template: '' })
+class DummyComponent {}
+
+const mockUser: User = {
+  id: 'uuid-1',
+  username: 'jdoe',
+  email: 'jdoe@example.com',
+  first_name: 'John',
+  last_name: 'Doe',
+  role: 'user',
+  active: true,
+  created_at: '2024-01-01T00:00:00Z',
+  updated_at: '2024-01-01T00:00:00Z',
+};
 
 const userServiceMock = {
   loading: signal(false),
-  getById: jest.fn().mockReturnValue({ subscribe: jest.fn() }),
-  create: jest.fn().mockReturnValue({ subscribe: jest.fn() }),
-  update: jest.fn().mockReturnValue({ subscribe: jest.fn() }),
+  getById: jest.fn().mockReturnValue(of(mockUser)),
+  create: jest.fn().mockReturnValue(of(mockUser)),
+  update: jest.fn().mockReturnValue(of(mockUser)),
+  fullUpdate: jest.fn().mockReturnValue(of(mockUser)),
 };
 
 describe('UserFormComponent', () => {
@@ -18,9 +37,16 @@ describe('UserFormComponent', () => {
   let fixture: ComponentFixture<UserFormComponent>;
 
   beforeEach(async () => {
+    TestBed.resetTestingModule();
     await TestBed.configureTestingModule({
-      imports: [UserFormComponent, RouterTestingModule, NoopAnimationsModule, ReactiveFormsModule],
-      providers: [{ provide: UserService, useValue: userServiceMock }],
+      imports: [UserFormComponent, NoopAnimationsModule, ReactiveFormsModule],
+      providers: [
+        provideRouter([
+          { path: 'users', component: DummyComponent },
+          { path: 'users/:id/edit', component: DummyComponent },
+        ]),
+        { provide: UserService, useValue: userServiceMock },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(UserFormComponent);
@@ -32,37 +58,75 @@ describe('UserFormComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should be in create mode when no id is provided', () => {
+  it('modo creación cuando no hay id', () => {
     expect(component.isEdit).toBe(false);
   });
 
-  it('should be in edit mode when id input is provided', () => {
-    fixture.componentRef.setInput('id', '42');
+  it('modo edición cuando hay id', () => {
+    fixture.componentRef.setInput('id', 'uuid-1');
     fixture.detectChanges();
     expect(component.isEdit).toBe(true);
   });
 
-  it('should have an invalid form initially (create mode)', () => {
+  it('formulario inválido al inicio en modo creación', () => {
     expect(component.form.invalid).toBe(true);
   });
 
-  it('should mark form as touched when submitting an invalid form', () => {
+  it('marca todos los campos como touched si se envía formulario inválido', () => {
     component.submit();
     expect(component.form.touched).toBe(true);
   });
 
-  it('should detect invalid fields after touching', () => {
+  it('fieldInvalid devuelve true para campo tocado con error', () => {
     component.form.get('username')?.markAsTouched();
     expect(component.fieldInvalid('username')).toBe(true);
   });
 
-  it('should have the correct number of roles', () => {
-    expect(component.roles.length).toBe(3);
+  it('fieldInvalid devuelve false para campo válido', () => {
+    component.form.get('username')?.setValue('validuser');
+    component.form.get('username')?.markAsTouched();
+    expect(component.fieldInvalid('username')).toBe(false);
   });
 
-  it('should expose role descriptions for all roles', () => {
-    expect(component.roleDescriptions['admin']).toBeTruthy();
-    expect(component.roleDescriptions['moderator']).toBeTruthy();
-    expect(component.roleDescriptions['user']).toBeTruthy();
+  it('tiene exactamente 3 roles (admin, guest, user)', () => {
+    expect(component.roles).toHaveLength(3);
+    const values = component.roles.map((r) => r.value);
+    expect(values).toContain('admin');
+    expect(values).toContain('guest');
+    expect(values).toContain('user');
+  });
+
+  it('roleDescriptions incluye guest (no moderator)', () => {
+    expect(component.roleDescriptions['guest']).toBeTruthy();
+    expect(component.roleDescriptions['moderator']).toBeFalsy();
+  });
+
+  it('en creación, submit válido llama create()', () => {
+    component.form.patchValue({
+      username: 'newuser',
+      email: 'new@example.com',
+      first_name: 'New',
+      last_name: 'User',
+      role: 'user',
+      active: true,
+    });
+    component.submit();
+    expect(userServiceMock.create).toHaveBeenCalled();
+  });
+
+  it('en edición, submit válido llama fullUpdate() (PUT)', () => {
+    fixture.componentRef.setInput('id', 'uuid-1');
+    fixture.detectChanges();
+    component.form.patchValue({
+      username: 'edituser',
+      email: 'edit@example.com',
+      first_name: 'Edit',
+      last_name: 'User',
+      role: 'admin',
+      active: false,
+    });
+    component.submit();
+    expect(userServiceMock.fullUpdate).toHaveBeenCalled();
   });
 });
+

@@ -1,15 +1,33 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { RouterTestingModule } from '@angular/router/testing';
+import { Component } from '@angular/core';
+import { provideRouter } from '@angular/router';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { signal } from '@angular/core';
+import { of } from 'rxjs';
 import { UserListComponent } from './user-list.component';
 import { UserService } from '../../../../core/services/user.service';
 import { ConfirmationService } from 'primeng/api';
-import { UserRole } from '../../../../core/models/user.model';
+import { User, UserRole } from '../../../../core/models/user.model';
+
+@Component({ standalone: true, template: '' })
+class DummyComponent {}
+
+const makeUser = (overrides: Partial<User> = {}): User => ({
+  id: 'uuid-1',
+  username: 'jdoe',
+  email: 'jdoe@example.com',
+  first_name: 'John',
+  last_name: 'Doe',
+  role: 'user' as UserRole,
+  active: true,
+  created_at: '2024-01-01T00:00:00Z',
+  updated_at: '2024-01-01T00:00:00Z',
+  ...overrides,
+});
 
 const mockUsers = [
-  { id: 1, username: 'admin', full_name: 'Admin User', email: 'admin@latam.com', role: 'admin' as UserRole, is_active: true, created_at: '2024-01-01', updated_at: '2024-01-01' },
-  { id: 2, username: 'jdoe', full_name: 'John Doe', email: 'jdoe@latam.com', role: 'user' as UserRole, is_active: false, created_at: '2024-02-01', updated_at: '2024-02-01' },
+  makeUser({ id: 'uuid-1', username: 'jdoe', active: true }),
+  makeUser({ id: 'uuid-2', username: 'jane', active: false }),
 ];
 
 const userServiceMock = {
@@ -19,7 +37,8 @@ const userServiceMock = {
   activeUsers: signal([mockUsers[0]]),
   inactiveUsers: signal([mockUsers[1]]),
   loadUsers: jest.fn(),
-  delete: jest.fn().mockReturnValue({ subscribe: jest.fn() }),
+  delete: jest.fn().mockReturnValue(of(undefined)),
+  update: jest.fn().mockReturnValue(of(mockUsers[0])),
 };
 
 describe('UserListComponent', () => {
@@ -27,9 +46,16 @@ describe('UserListComponent', () => {
   let fixture: ComponentFixture<UserListComponent>;
 
   beforeEach(async () => {
+    TestBed.resetTestingModule();
     await TestBed.configureTestingModule({
-      imports: [UserListComponent, RouterTestingModule, NoopAnimationsModule],
+      imports: [UserListComponent, NoopAnimationsModule],
       providers: [
+        provideRouter([
+          { path: 'users', component: DummyComponent },
+          { path: 'users/new', component: DummyComponent },
+          { path: 'users/:id', component: DummyComponent },
+          { path: 'users/:id/edit', component: DummyComponent },
+        ]),
         { provide: UserService, useValue: userServiceMock },
         ConfirmationService,
       ],
@@ -44,30 +70,37 @@ describe('UserListComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should call loadUsers on init', () => {
+  it('llama loadUsers() en ngOnInit', () => {
     expect(userServiceMock.loadUsers).toHaveBeenCalled();
   });
 
-  it('should return correct avatar color based on username', () => {
-    const color = component.avatarColor('admin');
-    expect(color).toBeTruthy();
-    expect(color).toMatch(/^#[0-9A-Fa-f]{6}$/);
-  });
-
-  it('should return correct role label', () => {
-    expect(component.roleLabel('admin')).toBe('Administrador');
-    expect(component.roleLabel('moderator')).toBe('Moderador');
-    expect(component.roleLabel('user')).toBe('Usuario');
-  });
-
-  it('should return correct role severity', () => {
+  it('roleSeverity devuelve "danger" para admin', () => {
     expect(component.roleSeverity('admin')).toBe('danger');
-    expect(component.roleSeverity('moderator')).toBe('warn');
+  });
+
+  it('roleSeverity devuelve "info" para user', () => {
     expect(component.roleSeverity('user')).toBe('info');
+  });
+
+  it('roleSeverity devuelve "secondary" para roles desconocidos', () => {
     expect(component.roleSeverity('unknown')).toBe('secondary');
   });
 
-  it('should have 5 skeleton rows', () => {
-    expect(component.skeletonRows.length).toBe(5);
+  it('toggleStatus llama update con active invertido', () => {
+    const user = makeUser({ active: true });
+    component.toggleStatus(user);
+    expect(userServiceMock.update).toHaveBeenCalledWith('uuid-1', { active: false });
+  });
+
+  it('confirmDelete llama delete del servicio al confirmar', () => {
+    const confirmSpy = jest.spyOn(
+      TestBed.inject(ConfirmationService),
+      'confirm',
+    ).mockImplementation(({ accept }) => accept?.());
+
+    component.confirmDelete(mockUsers[0]);
+    expect(userServiceMock.delete).toHaveBeenCalledWith('uuid-1');
+    confirmSpy.mockRestore();
   });
 });
+

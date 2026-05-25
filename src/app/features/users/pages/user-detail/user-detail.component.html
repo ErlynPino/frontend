@@ -32,14 +32,14 @@
                 </div>
                 <div class="detail-card__profile-info">
                     <h2 class="detail-card__name">
-                        {{ user()!.full_name || user()!.username }}
+                        {{ (user()!.first_name + ' ' + user()!.last_name).trim() || user()!.username }}
                     </h2>
                     <span class="detail-card__email">{{ user()!.email }}</span>
                     <div class="detail-card__badges">
                         <p-tag [value]="roleLabel(user()!.role)" [severity]="roleSeverity(user()!.role)"
                             [rounded]="true" />
-                        <p-tag [value]="user()!.is_active ? 'Activo' : 'Inactivo'"
-                            [severity]="user()!.is_active ? 'success' : 'secondary'" [rounded]="true" />
+                        <p-tag [value]="user()!.active ? 'Activo' : 'Inactivo'"
+                            [severity]="user()!.active ? 'success' : 'secondary'" [rounded]="true" />
                     </div>
                 </div>
             </div>
@@ -73,9 +73,17 @@
                 <div class="detail-field">
                     <dt class="detail-field__label">
                         <span class="pi pi-id-card detail-field__icon"></span>
-                        Nombre completo
+                        Nombre
                     </dt>
-                    <dd class="detail-field__value">{{ user()!.full_name || '—' }}</dd>
+                    <dd class="detail-field__value">{{ user()!.first_name || '—' }}</dd>
+                </div>
+
+                <div class="detail-field">
+                    <dt class="detail-field__label">
+                        <span class="pi pi-id-card detail-field__icon"></span>
+                        Apellido
+                    </dt>
+                    <dd class="detail-field__value">{{ user()!.last_name || '—' }}</dd>
                 </div>
 
                 <div class="detail-field">
@@ -123,12 +131,12 @@
                 </li>
                 <li class="activity-item">
                     <span class="activity-item__icon pi pi-check-circle"
-                        [class.activity-item__icon--green]="user()!.is_active"
-                        [class.activity-item__icon--gray]="!user()!.is_active"></span>
+                        [class.activity-item__icon--green]="user()!.active"
+                        [class.activity-item__icon--gray]="!user()!.active"></span>
                     <div class="activity-item__body">
                         <span class="activity-item__label">Estado</span>
                         <span class="activity-item__value">
-                            {{ user()!.is_active ? 'Cuenta activa' : 'Cuenta inactiva' }}
+                            {{ user()!.active ? 'Cuenta activa' : 'Cuenta inactiva' }}
                         </span>
                     </div>
                 </li>

@@ -1,5 +1,5 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
-import { Observable, tap } from 'rxjs';
+import { Observable, tap, finalize } from 'rxjs';
 import {
   PaginatedResponse,
   User,
@@ -31,8 +31,8 @@ export class UserService {
   readonly total = this._total.asReadonly();
   readonly error = this._error.asReadonly();
 
-  readonly activeUsers = computed(() => this._users().filter((u) => u.is_active));
-  readonly inactiveUsers = computed(() => this._users().filter((u) => !u.is_active));
+  readonly activeUsers = computed(() => this._users().filter((u) => u.active));
+  readonly inactiveUsers = computed(() => this._users().filter((u) => !u.active));
 
   // ── Métodos públicos ───────────────────────────────────────────────
 
@@ -57,15 +57,15 @@ export class UserService {
       });
   }
 
-  getById(id: number): Observable<User> {
+  getById(id: string): Observable<User> {
     this._loading.set(true);
     this._error.set(null);
     return this.api.get<User>(`/users/${id}`).pipe(
       tap({
         next: (user) => this._selectedUser.set(user),
         error: (err) => this._error.set(err.message),
-        complete: () => this._loading.set(false),
       }),
+      finalize(() => this._loading.set(false)),
     );
   }
 
@@ -76,12 +76,31 @@ export class UserService {
       tap({
         next: (user) => this._users.update((list) => [...list, user]),
         error: (err) => this._error.set(err.message),
-        complete: () => this._loading.set(false),
       }),
+      finalize(() => this._loading.set(false)),
     );
   }
 
-  update(id: number, payload: UserUpdate): Observable<User> {
+  /** PUT /users/:id — reemplazo completo de todos los campos. */
+  fullUpdate(id: string, payload: UserUpdate): Observable<User> {
+    this._loading.set(true);
+    this._error.set(null);
+    return this.api.put<User>(`/users/${id}`, payload).pipe(
+      tap({
+        next: (updated) => {
+          this._users.update((list) =>
+            list.map((u) => (u.id === id ? updated : u)),
+          );
+          this._selectedUser.set(updated);
+        },
+        error: (err) => this._error.set(err.message),
+      }),
+      finalize(() => this._loading.set(false)),
+    );
+  }
+
+  /** PATCH /users/:id — actualización parcial (ej: solo active). */
+  update(id: string, payload: UserUpdate): Observable<User> {
     this._loading.set(true);
     this._error.set(null);
     return this.api.patch<User>(`/users/${id}`, payload).pipe(
@@ -93,20 +112,20 @@ export class UserService {
           this._selectedUser.set(updated);
         },
         error: (err) => this._error.set(err.message),
-        complete: () => this._loading.set(false),
       }),
+      finalize(() => this._loading.set(false)),
     );
   }
 
-  delete(id: number): Observable<void> {
+  delete(id: string): Observable<void> {
     this._loading.set(true);
     this._error.set(null);
     return this.api.delete<void>(`/users/${id}`).pipe(
       tap({
         next: () => this._users.update((list) => list.filter((u) => u.id !== id)),
         error: (err) => this._error.set(err.message),
-        complete: () => this._loading.set(false),
       }),
+      finalize(() => this._loading.set(false)),
     );
   }
 

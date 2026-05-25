@@ -42,7 +42,7 @@
             @if (fieldInvalid('username')) {
               <small class="form-field__error">
                 <span class="pi pi-exclamation-circle"></span>
-                Requerido, mínimo 3 caracteres.
+                Requerido, mínimo 3 caracteres. Solo letras, números, guiones y guiones bajos.
               </small>
             }
           </div>
@@ -69,18 +69,51 @@
           </div>
         </div>
 
-        <!-- Row 2: Full name + Role -->
+        <!-- Row 2: First name + Last name -->
         <div class="form-row">
           <div class="form-field">
-            <label class="form-field__label" for="full_name">Nombre completo</label>
+            <label class="form-field__label" for="first_name">
+              Nombre <span class="form-field__required">*</span>
+            </label>
             <input
               pInputText
-              id="full_name"
-              formControlName="full_name"
-              placeholder="ej: John Doe"
+              id="first_name"
+              formControlName="first_name"
+              placeholder="ej: John"
+              autocomplete="off"
+              [class.ng-invalid]="fieldInvalid('first_name')"
             />
+            @if (fieldInvalid('first_name')) {
+              <small class="form-field__error">
+                <span class="pi pi-exclamation-circle"></span>
+                El nombre es requerido.
+              </small>
+            }
           </div>
 
+          <div class="form-field">
+            <label class="form-field__label" for="last_name">
+              Apellido <span class="form-field__required">*</span>
+            </label>
+            <input
+              pInputText
+              id="last_name"
+              formControlName="last_name"
+              placeholder="ej: Doe"
+              autocomplete="off"
+              [class.ng-invalid]="fieldInvalid('last_name')"
+            />
+            @if (fieldInvalid('last_name')) {
+              <small class="form-field__error">
+                <span class="pi pi-exclamation-circle"></span>
+                El apellido es requerido.
+              </small>
+            }
+          </div>
+        </div>
+
+        <!-- Row 3: Role -->
+        <div class="form-row">
           <div class="form-field">
             <label class="form-field__label" for="role">
               Rol <span class="form-field__required">*</span>
@@ -95,38 +128,14 @@
               styleClass="w-full"
             />
           </div>
+          <div class="form-field"></div>
         </div>
-
-        <!-- Password (only on create) -->
-        @if (!isEdit) {
-          <div class="form-field">
-            <label class="form-field__label" for="password">
-              Contraseña <span class="form-field__required">*</span>
-            </label>
-            <p-password
-              id="password"
-              formControlName="password"
-              placeholder="Mínimo 8 caracteres"
-              [toggleMask]="true"
-              [feedback]="true"
-              styleClass="w-full"
-              inputStyleClass="w-full"
-              [class.ng-invalid]="fieldInvalid('password')"
-            />
-            @if (fieldInvalid('password')) {
-              <small class="form-field__error">
-                <span class="pi pi-exclamation-circle"></span>
-                La contraseña es requerida (mín. 8 caracteres).
-              </small>
-            }
-          </div>
-        }
 
         <!-- Active toggle (only on edit) -->
         @if (isEdit) {
           <div class="form-field form-field--toggle">
-            <p-toggleswitch formControlName="is_active" inputId="is_active" />
-            <label for="is_active" class="form-field__toggle-label">
+            <p-toggleswitch formControlName="active" inputId="active" />
+            <label for="active" class="form-field__toggle-label">
               Usuario activo en el sistema
             </label>
           </div>

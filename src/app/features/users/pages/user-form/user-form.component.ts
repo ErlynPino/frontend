@@ -1,4 +1,4 @@
-import { Component, inject, input, OnInit } from '@angular/core';
+import { Component, inject, input, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
@@ -7,6 +7,7 @@ import { SelectModule } from 'primeng/select';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { UserService } from '../../../../core/services/user.service';
 import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
+import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { UserRole } from '../../../../core/models/user.model';
 
 const ROLES: { label: string; value: UserRole }[] = [
@@ -32,6 +33,7 @@ const ROLE_DESCRIPTIONS: Record<string, string> = {
     SelectModule,
     ToggleSwitchModule,
     PageHeaderComponent,
+    ConfirmDialogComponent,
   ],
 })
 export class UserFormComponent implements OnInit {
@@ -43,6 +45,8 @@ export class UserFormComponent implements OnInit {
 
   readonly roles = ROLES;
   readonly roleDescriptions = ROLE_DESCRIPTIONS;
+
+  readonly dialogVisible = signal(false);
 
   readonly form = this.fb.nonNullable.group({
     username:   ['', [Validators.required, Validators.minLength(3), Validators.pattern(/^[a-zA-Z0-9_-]+$/)]],
@@ -89,7 +93,10 @@ export class UserFormComponent implements OnInit {
       this.form.markAllAsTouched();
       return;
     }
+    this.dialogVisible.set(true);
+  }
 
+  onConfirmed(): void {
     const value = this.form.getRawValue();
 
     if (this.isEdit) {

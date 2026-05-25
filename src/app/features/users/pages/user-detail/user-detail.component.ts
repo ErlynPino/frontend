@@ -1,4 +1,4 @@
-import { Component, inject, input, OnInit } from '@angular/core';
+import { Component, inject, input, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
@@ -6,6 +6,7 @@ import { TagModule } from 'primeng/tag';
 import { SkeletonModule } from 'primeng/skeleton';
 import { UserService } from '../../../../core/services/user.service';
 import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
+import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { UserRole } from '../../../../core/models/user.model';
 
 @Component({
@@ -18,6 +19,7 @@ import { UserRole } from '../../../../core/models/user.model';
     TagModule,
     SkeletonModule,
     PageHeaderComponent,
+    ConfirmDialogComponent,
   ],
 })
 export class UserDetailComponent implements OnInit {
@@ -27,6 +29,7 @@ export class UserDetailComponent implements OnInit {
   private readonly router = inject(Router);
 
   protected readonly user = this.userService.selectedUser;
+  readonly dialogVisible = signal(false);
 
   private static readonly AVATAR_COLORS = [
     '#E40613', '#002B5C', '#00A3E0', '#10B981',
@@ -62,6 +65,10 @@ export class UserDetailComponent implements OnInit {
   }
 
   edit(): void {
+    this.dialogVisible.set(true);
+  }
+
+  onConfirmEdit(): void {
     this.router.navigate(['/users', this.id(), 'edit']);
   }
 

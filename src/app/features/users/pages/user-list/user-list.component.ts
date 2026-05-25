@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
@@ -6,10 +6,19 @@ import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { SkeletonModule } from 'primeng/skeleton';
 import { TooltipModule } from 'primeng/tooltip';
-import { ConfirmationService } from 'primeng/api';
 import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
+import { ConfirmDialogComponent, ConfirmSeverity } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { UserService } from '../../../../core/services/user.service';
 import { User, UserRole } from '../../../../core/models/user.model';
+
+interface DialogConfig {
+  header: string;
+  message: string;
+  icon: string;
+  confirmLabel: string;
+  confirmSeverity: ConfirmSeverity;
+  action: () => void;
+}
 
 @Component({
   selector: 'app-user-list',
@@ -23,14 +32,24 @@ import { User, UserRole } from '../../../../core/models/user.model';
     SkeletonModule,
     TooltipModule,
     PageHeaderComponent,
+    ConfirmDialogComponent,
   ],
 })
 export class UserListComponent implements OnInit {
   protected readonly userService = inject(UserService);
   private readonly router = inject(Router);
-  private readonly confirmationService = inject(ConfirmationService);
 
   readonly skeletonRows = Array(5).fill({});
+
+  readonly dialogVisible = signal(false);
+  readonly dialogConfig = signal<DialogConfig>({
+    header: '',
+    message: '',
+    icon: 'pi pi-exclamation-triangle',
+    confirmLabel: 'Confirmar',
+    confirmSeverity: 'danger',
+    action: () => {},
+  });
 
   private static readonly AVATAR_COLORS = [
     '#E40613', '#002B5C', '#00A3E0', '#10B981',
@@ -75,26 +94,45 @@ export class UserListComponent implements OnInit {
   }
 
   editUser(user: User): void {
-    this.router.navigate(['/users', user.id, 'edit']);
+    this.dialogConfig.set({
+      header: 'Editar usuario',
+      message: `¿Deseas editar la información de <strong>${user.username}</strong>?`,
+      icon: 'pi pi-pencil',
+      confirmLabel: 'Ir a editar',
+      confirmSeverity: 'info',
+      action: () => this.router.navigate(['/users', user.id, 'edit']),
+    });
+    this.dialogVisible.set(true);
   }
 
   confirmDelete(user: User): void {
-    this.confirmationService.confirm({
-      message: `¿Estás seguro de eliminar al usuario <strong>${user.username}</strong>?`,
+    this.dialogConfig.set({
       header: 'Confirmar eliminación',
-      icon: 'pi pi-exclamation-triangle',
-      acceptLabel: 'Eliminar',
-      rejectLabel: 'Cancelar',
-      acceptButtonStyleClass: 'p-button-danger',
-      accept: () => {
-        this.userService.delete(user.id).subscribe();
-      },
+      message: `¿Estás seguro de eliminar al usuario <strong>${user.username}</strong>? Esta acción no se puede deshacer.`,
+      icon: 'pi pi-trash',
+      confirmLabel: 'Eliminar',
+      confirmSeverity: 'danger',
+      action: () => this.userService.delete(user.id).subscribe(),
     });
+    this.dialogVisible.set(true);
+  }
+
+  onDialogConfirmed(): void {
+    this.dialogConfig().action();
   }
 
   /** PATCH — toggle rápido de estado activo/inactivo sin abrir el formulario. */
   toggleStatus(user: User): void {
-    this.userService.update(user.id, { active: !user.active }).subscribe();
+    const newStatus = !user.active;
+    this.dialogConfig.set({
+      header: newStatus ? 'Activar usuario' : 'Desactivar usuario',
+      message: `¿Confirmas ${newStatus ? 'activar' : 'desactivar'} al usuario <strong>${user.username}</strong>?`,
+      icon: newStatus ? 'pi pi-check-circle' : 'pi pi-ban',
+      confirmLabel: newStatus ? 'Activar' : 'Desactivar',
+      confirmSeverity: newStatus ? 'success' : 'warn',
+      action: () => this.userService.update(user.id, { active: newStatus }).subscribe(),
+    });
+    this.dialogVisible.set(true);
   }
 }
 

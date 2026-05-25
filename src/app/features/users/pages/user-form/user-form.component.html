@@ -184,3 +184,16 @@
     </div>
   </div>
 </div>
+
+<app-confirm-dialog
+  [visible]="dialogVisible()"
+  (visibleChange)="dialogVisible.set($event)"
+  [header]="isEdit ? 'Confirmar actualización' : 'Confirmar creación'"
+  [message]="isEdit
+    ? '¿Confirmas guardar los cambios realizados al usuario?'
+    : '¿Confirmas la creación del nuevo usuario?'"
+  [icon]="isEdit ? 'pi pi-save' : 'pi pi-user-plus'"
+  [confirmLabel]="isEdit ? 'Guardar cambios' : 'Crear usuario'"
+  confirmSeverity="success"
+  (confirmed)="onConfirmed()"
+/>

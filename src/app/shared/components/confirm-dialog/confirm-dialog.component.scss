@@ -1,0 +1,31 @@
+.confirm-dialog__body {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 0.5rem 0 1rem;
+}
+
+.confirm-dialog__icon {
+  font-size: 1.75rem;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+
+  &.pi-trash          { color: var(--p-red-500); }
+  &.pi-exclamation-triangle { color: var(--p-yellow-500); }
+  &.pi-ban            { color: var(--p-orange-500); }
+  &.pi-check-circle   { color: var(--p-green-500); }
+  &.pi-save           { color: var(--p-blue-500); }
+  &.pi-user-plus      { color: var(--p-green-500); }
+}
+
+.confirm-dialog__message {
+  margin: 0;
+  line-height: 1.55;
+  color: var(--p-text-color);
+  font-size: 0.95rem;
+
+  strong {
+    color: var(--p-text-color);
+    font-weight: 600;
+  }
+}

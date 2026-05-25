@@ -184,3 +184,14 @@
     </p-table>
   </div>
 </div>
+
+<app-confirm-dialog
+  [visible]="dialogVisible()"
+  (visibleChange)="dialogVisible.set($event)"
+  [header]="dialogConfig().header"
+  [message]="dialogConfig().message"
+  [icon]="dialogConfig().icon"
+  [confirmLabel]="dialogConfig().confirmLabel"
+  [confirmSeverity]="dialogConfig().confirmSeverity"
+  (confirmed)="onDialogConfirmed()"
+/>

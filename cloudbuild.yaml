@@ -1,25 +1,21 @@
 steps:
-  # -- Step 1: Install dependencies ----------------------------------------------
   - name: "node:22"
     id: Install
     entrypoint: npm
     args: ["ci"]
 
-  # -- Step 2: Run tests (paralelo con Build tras Install) -----------------------
   - name: "node:22"
     id: Test
     waitFor: ["Install"]
     entrypoint: npm
     args: ["test", "--", "--no-coverage"]
 
-  # -- Step 3: Build producción (paralelo con Test) -------------------------------
   - name: "node:22"
     id: Build
     waitFor: ["Install"]
     entrypoint: npm
     args: ["run", "build", "--", "--configuration", "production"]
 
-  # -- Step 4: Build imagen Docker (nginx + dist/) -------------------------------
   - name: "gcr.io/cloud-builders/docker"
     id: DockerBuild
     waitFor: ["Test", "Build"]
@@ -31,7 +27,6 @@ steps:
       - "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/${_SERVICE}:latest"
       - .
 
-  # -- Step 5: Push a Artifact Registry ------------------------------------------
   - name: "gcr.io/cloud-builders/docker"
     id: Push
     waitFor: ["DockerBuild"]
@@ -40,7 +35,6 @@ steps:
       - --all-tags
       - "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/${_SERVICE}"
 
-  # -- Step 6: Deploy a Cloud Run ------------------------------------------------
   - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
     id: Deploy
     waitFor: ["Push"]

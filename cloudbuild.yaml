@@ -1,0 +1,76 @@
+steps:
+  # ── Step 1: Install dependencies ──────────────────────────────────────────────
+  - name: "node:22"
+    id: Install
+    entrypoint: npm
+    args: ["ci"]
+    dir: frontend
+
+  # ── Step 2: Run tests (paralelo con Build tras Install) ───────────────────────
+  - name: "node:22"
+    id: Test
+    waitFor: ["Install"]
+    entrypoint: npm
+    args: ["test", "--", "--no-coverage"]
+    dir: frontend
+
+  # ── Step 3: Build producción (paralelo con Test) ───────────────────────────────
+  - name: "node:22"
+    id: Build
+    waitFor: ["Install"]
+    entrypoint: npm
+    args: ["run", "build", "--", "--configuration", "production"]
+    dir: frontend
+
+  # ── Step 4: Build imagen Docker (nginx + dist/) ───────────────────────────────
+  - name: "gcr.io/cloud-builders/docker"
+    id: DockerBuild
+    waitFor: ["Test", "Build"]
+    args:
+      - build
+      - -t
+      - "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/${_SERVICE}:$COMMIT_SHA"
+      - -t
+      - "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/${_SERVICE}:latest"
+      - frontend
+
+  # ── Step 5: Push a Artifact Registry ──────────────────────────────────────────
+  - name: "gcr.io/cloud-builders/docker"
+    id: Push
+    waitFor: ["DockerBuild"]
+    args:
+      - push
+      - --all-tags
+      - "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/${_SERVICE}"
+
+  # ── Step 6: Deploy a Cloud Run ────────────────────────────────────────────────
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    id: Deploy
+    waitFor: ["Push"]
+    entrypoint: bash
+    args:
+      - -c
+      - |
+        set -e
+        gcloud run deploy $_SERVICE \
+          --image "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/${_SERVICE}:$COMMIT_SHA" \
+          --region $_REGION \
+          --platform managed \
+          --allow-unauthenticated \
+          --port 8080 \
+          --cpu 1 \
+          --memory 256Mi \
+          --min-instances 0 \
+          --max-instances 5
+
+images:
+  - "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/${_SERVICE}:$COMMIT_SHA"
+  - "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/${_SERVICE}:latest"
+
+substitutions:
+  _REGION: us-central1
+  _REPO: challenge-repo
+  _SERVICE: user-frontend
+
+options:
+  logging: CLOUD_LOGGING_ONLY

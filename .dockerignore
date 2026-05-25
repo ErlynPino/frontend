@@ -1,0 +1,18 @@
+# Excluir todo lo que no necesita la imagen nginx de producción.
+# El step "Build" de Cloud Build ya generó dist/ antes de que Docker corra.
+node_modules
+.angular
+src
+public
+.vscode
+.git
+*.md
+*.ts
+*.mjs
+.gitignore
+.editorconfig
+.prettierrc
+jest.config.ts
+setup-jest.ts
+postcss.config.mjs
+tsconfig*.json

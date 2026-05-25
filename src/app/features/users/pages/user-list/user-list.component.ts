@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@ang
 import { Router } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
-import { TableModule } from 'primeng/table';
+import { TableModule, TableLazyLoadEvent } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { SkeletonModule } from 'primeng/skeleton';
 import { TooltipModule } from 'primeng/tooltip';
@@ -41,6 +41,7 @@ export class UserListComponent implements OnInit {
   private readonly router = inject(Router);
 
   readonly skeletonRows = Array(5).fill({});
+  readonly pageSize = 10;
 
   readonly dialogVisible = signal(false);
   readonly dialogConfig = signal<DialogConfig>({
@@ -70,7 +71,14 @@ export class UserListComponent implements OnInit {
   };
 
   ngOnInit(): void {
-    this.userService.loadUsers();
+    this.userService.loadUsers({ skip: 0, limit: this.pageSize });
+  }
+
+  onPageChange(event: TableLazyLoadEvent): void {
+    this.userService.loadUsers({
+      skip: event.first ?? 0,
+      limit: event.rows ?? this.pageSize,
+    });
   }
 
   avatarColor(username: string): string {

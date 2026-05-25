@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, inject, input, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, input, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
@@ -8,6 +9,7 @@ import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { UserService } from '../../../../core/services/user.service';
 import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { noWhitespaceValidator, corporateEmailValidator } from '../../../../shared/validators/user.validators';
 import { UserRole } from '../../../../core/models/user.model';
 
 const ROLES: { label: string; value: UserRole }[] = [
@@ -43,6 +45,7 @@ export class UserFormComponent implements OnInit {
   protected readonly userService = inject(UserService);
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly roles = ROLES;
   readonly roleDescriptions = ROLE_DESCRIPTIONS;
@@ -50,10 +53,10 @@ export class UserFormComponent implements OnInit {
   readonly dialogVisible = signal(false);
 
   readonly form = this.fb.nonNullable.group({
-    username:   ['', [Validators.required, Validators.minLength(3), Validators.pattern(/^[a-zA-Z0-9_-]+$/)]],
-    email:      ['', [Validators.required, Validators.email]],
-    first_name: ['', Validators.required],
-    last_name:  ['', Validators.required],
+    username:   ['', [Validators.required, Validators.minLength(3), Validators.pattern(/^[a-zA-Z0-9_-]+$/)]], 
+    email:      ['', [Validators.required, Validators.email, corporateEmailValidator]],
+    first_name: ['', [Validators.required, noWhitespaceValidator]],
+    last_name:  ['', [Validators.required, noWhitespaceValidator]],
     role:       ['user' as UserRole, Validators.required],
     active:     [true],
   });
@@ -69,7 +72,9 @@ export class UserFormComponent implements OnInit {
       this.form.get('last_name')?.clearValidators();
       this.form.get('last_name')?.updateValueAndValidity();
 
-      this.userService.getById(this.id()!).subscribe((user) => {
+      this.userService.getById(this.id()!).pipe(
+        takeUntilDestroyed(this.destroyRef),
+      ).subscribe((user) => {
         if (user) {
           this.form.patchValue({
             username:   user.username,

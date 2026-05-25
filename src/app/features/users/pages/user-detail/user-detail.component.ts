@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, inject, input, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, input, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
@@ -28,6 +29,7 @@ export class UserDetailComponent implements OnInit {
 
   protected readonly userService = inject(UserService);
   private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly user = this.userService.selectedUser;
   readonly dialogVisible = signal(false);
@@ -44,7 +46,9 @@ export class UserDetailComponent implements OnInit {
   };
 
   ngOnInit(): void {
-    this.userService.getById(this.id()).subscribe();
+    this.userService.getById(this.id()).pipe(
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe();
   }
 
   avatarColor(username: string): string {

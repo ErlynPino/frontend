@@ -20,6 +20,7 @@ export class UserService {
   private readonly _total = signal<number>(0);
   private readonly _mutating = signal<boolean>(false);
   private _cacheStale = false;
+  private _lastParamsKey = '';
 
   readonly usersState = this._usersState.asReadonly();
   readonly selectedUserState = this._selectedUserState.asReadonly();
@@ -55,8 +56,12 @@ export class UserService {
   readonly inactiveUsers = computed(() => this.users().filter((u) => !u.active));
 
   loadUsers(params: UserListParams = {}): void {
-    if (this.users().length > 0 && !this._cacheStale) return;
+    const paramsKey = `${params.skip ?? 0}:${params.limit ?? 50}`;
+    const alreadyLoading = this._usersState().status === 'loading' && this._lastParamsKey === paramsKey;
+    const cacheHit = this.users().length > 0 && !this._cacheStale && this._lastParamsKey === paramsKey;
+    if (alreadyLoading || cacheHit) return;
     this._cacheStale = false;
+    this._lastParamsKey = paramsKey;
     this._usersState.set({ status: 'loading' });
 
     const queryParams: Record<string, number> = {

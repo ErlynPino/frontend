@@ -1,5 +1,15 @@
 <div class="user-list">
 
+  <!-- Accessibility: live region for async state changes -->
+  <div
+    aria-live="polite"
+    aria-atomic="true"
+    class="sr-only"
+  >
+    @if (userService.loading()) { Cargando usuarios... }
+    @if (userService.error()) { Error al cargar usuarios: {{ userService.error() }} }
+  </div>
+
   <!-- Page Header -->
   <app-page-header
     title="Usuarios"
@@ -9,33 +19,33 @@
   />
 
   <!-- Stats Row -->
-  <div class="user-list__stats">
-    <div class="stat-card">
-      <div class="stat-card__icon stat-card__icon--navy">
+  <div class="user-list__stats" role="region" aria-label="Resumen de usuarios">
+    <div class="stat-card" role="status" aria-label="Total de usuarios: {{ userService.total() }}">
+      <div class="stat-card__icon stat-card__icon--navy" aria-hidden="true">
         <span class="pi pi-users"></span>
       </div>
       <div class="stat-card__body">
-        <span class="stat-card__value">{{ userService.total() }}</span>
+        <span class="stat-card__value" aria-hidden="true">{{ userService.total() }}</span>
         <span class="stat-card__label">Total</span>
       </div>
     </div>
 
-    <div class="stat-card">
-      <div class="stat-card__icon stat-card__icon--green">
+    <div class="stat-card" role="status" aria-label="Usuarios activos: {{ userService.activeUsers().length }}">
+      <div class="stat-card__icon stat-card__icon--green" aria-hidden="true">
         <span class="pi pi-check-circle"></span>
       </div>
       <div class="stat-card__body">
-        <span class="stat-card__value">{{ userService.activeUsers().length }}</span>
+        <span class="stat-card__value" aria-hidden="true">{{ userService.activeUsers().length }}</span>
         <span class="stat-card__label">Activos</span>
       </div>
     </div>
 
-    <div class="stat-card">
-      <div class="stat-card__icon stat-card__icon--red">
+    <div class="stat-card" role="status" aria-label="Usuarios inactivos: {{ userService.inactiveUsers().length }}">
+      <div class="stat-card__icon stat-card__icon--red" aria-hidden="true">
         <span class="pi pi-times-circle"></span>
       </div>
       <div class="stat-card__body">
-        <span class="stat-card__value">{{ userService.inactiveUsers().length }}</span>
+        <span class="stat-card__value" aria-hidden="true">{{ userService.inactiveUsers().length }}</span>
         <span class="stat-card__label">Inactivos</span>
       </div>
     </div>
@@ -45,29 +55,26 @@
   <div class="user-list__card">
     <p-table
       [value]="userService.loading() ? skeletonRows : userService.users()"
+      [lazy]="true"
+      [totalRecords]="userService.total()"
       [paginator]="true"
-      [rows]="10"
+      [rows]="pageSize"
       [rowsPerPageOptions]="[10, 25, 50]"
       [showCurrentPageReport]="true"
       currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} usuarios"
+      (onLazyLoad)="onPageChange($event)"
       styleClass="p-datatable-sm latam-table"
       [tableStyle]="{ 'min-width': '60rem' }"
     >
       <ng-template #header>
         <tr>
-          <th pSortableColumn="username">
-            Usuario <p-sortIcon field="username" />
-          </th>
-          <th pSortableColumn="last_name">
-            Nombre completo <p-sortIcon field="last_name" />
-          </th>
-          <th>Email</th>
-          <th pSortableColumn="role">Rol <p-sortIcon field="role" /></th>
-          <th>Estado</th>
-          <th pSortableColumn="created_at">
-            Creado <p-sortIcon field="created_at" />
-          </th>
-          <th class="th-actions">Acciones</th>
+          <th scope="col">Usuario</th>
+          <th scope="col">Nombre completo</th>
+          <th scope="col">Email</th>
+          <th scope="col">Rol</th>
+          <th scope="col">Estado</th>
+          <th scope="col">Creado</th>
+          <th scope="col" class="th-actions">Acciones</th>
         </tr>
       </ng-template>
 

@@ -34,6 +34,7 @@ const userServiceMock = {
   users: signal(mockUsers),
   loading: signal(false),
   total: signal(2),
+  error: signal<string | null>(null),
   activeUsers: signal([mockUsers[0]]),
   inactiveUsers: signal([mockUsers[1]]),
   loadUsers: jest.fn(),

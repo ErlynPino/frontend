@@ -37,11 +37,14 @@
               formControlName="username"
               placeholder="ej: jdoe"
               autocomplete="off"
+              aria-required="true"
+              [attr.aria-invalid]="fieldInvalid('username') || null"
+              aria-describedby="username-error"
               [class.ng-invalid]="fieldInvalid('username')"
             />
             @if (fieldInvalid('username')) {
-              <small class="form-field__error">
-                <span class="pi pi-exclamation-circle"></span>
+              <small id="username-error" class="form-field__error" role="alert">
+                <span class="pi pi-exclamation-circle" aria-hidden="true"></span>
                 Requerido, mínimo 3 caracteres. Solo letras, números, guiones y guiones bajos.
               </small>
             }
@@ -58,11 +61,14 @@
               formControlName="email"
               placeholder="ej: john.doe@latam.com"
               autocomplete="off"
+              aria-required="true"
+              [attr.aria-invalid]="fieldInvalid('email') || null"
+              aria-describedby="email-error"
               [class.ng-invalid]="fieldInvalid('email')"
             />
             @if (fieldInvalid('email')) {
-              <small class="form-field__error">
-                <span class="pi pi-exclamation-circle"></span>
+              <small id="email-error" class="form-field__error" role="alert">
+                <span class="pi pi-exclamation-circle" aria-hidden="true"></span>
                 Ingresa un email corporativo válido.
               </small>
             }
@@ -81,11 +87,14 @@
               formControlName="first_name"
               placeholder="ej: John"
               autocomplete="off"
+              aria-required="true"
+              [attr.aria-invalid]="fieldInvalid('first_name') || null"
+              aria-describedby="first-name-error"
               [class.ng-invalid]="fieldInvalid('first_name')"
             />
             @if (fieldInvalid('first_name')) {
-              <small class="form-field__error">
-                <span class="pi pi-exclamation-circle"></span>
+              <small id="first-name-error" class="form-field__error" role="alert">
+                <span class="pi pi-exclamation-circle" aria-hidden="true"></span>
                 El nombre es requerido.
               </small>
             }
@@ -101,11 +110,14 @@
               formControlName="last_name"
               placeholder="ej: Doe"
               autocomplete="off"
+              aria-required="true"
+              [attr.aria-invalid]="fieldInvalid('last_name') || null"
+              aria-describedby="last-name-error"
               [class.ng-invalid]="fieldInvalid('last_name')"
             />
             @if (fieldInvalid('last_name')) {
-              <small class="form-field__error">
-                <span class="pi pi-exclamation-circle"></span>
+              <small id="last-name-error" class="form-field__error" role="alert">
+                <span class="pi pi-exclamation-circle" aria-hidden="true"></span>
                 El apellido es requerido.
               </small>
             }

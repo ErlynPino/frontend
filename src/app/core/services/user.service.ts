@@ -1,44 +1,60 @@
-import { computed, inject, Injectable, signal } from '@angular/core';
+﻿import { computed, inject, Injectable, signal } from '@angular/core';
 import { Observable, tap, finalize } from 'rxjs';
 import {
   PaginatedResponse,
+  RemoteData,
   User,
   UserCreate,
   UserListParams,
+  UserPatch,
   UserUpdate,
 } from '../models/user.model';
 import { ApiService } from './api.service';
 
-/**
- * UserService — gestión de estado reactivo con Angular Signals (SRP).
- * Expone señales de solo lectura y métodos que orquestan llamadas HTTP.
- */
 @Injectable({ providedIn: 'root' })
 export class UserService {
   private readonly api = inject(ApiService);
 
-  // ── Estado privado ──────────────────────────────────────────────────
-  private readonly _users = signal<User[]>([]);
-  private readonly _selectedUser = signal<User | null>(null);
-  private readonly _loading = signal<boolean>(false);
+  private readonly _usersState = signal<RemoteData<User[]>>({ status: 'idle' });
+  private readonly _selectedUserState = signal<RemoteData<User>>({ status: 'idle' });
   private readonly _total = signal<number>(0);
-  private readonly _error = signal<string | null>(null);
+  private readonly _mutating = signal<boolean>(false);
 
-  // ── Señales públicas (readonly) ────────────────────────────────────
-  readonly users = this._users.asReadonly();
-  readonly selectedUser = this._selectedUser.asReadonly();
-  readonly loading = this._loading.asReadonly();
+  readonly usersState = this._usersState.asReadonly();
+  readonly selectedUserState = this._selectedUserState.asReadonly();
+
+  readonly users = computed(() => {
+    const s = this._usersState();
+    return s.status === 'success' ? s.data : [];
+  });
+
+  readonly loading = computed(
+    () =>
+      this._usersState().status === 'loading' ||
+      this._selectedUserState().status === 'loading' ||
+      this._mutating(),
+  );
+
   readonly total = this._total.asReadonly();
-  readonly error = this._error.asReadonly();
 
-  readonly activeUsers = computed(() => this._users().filter((u) => u.active));
-  readonly inactiveUsers = computed(() => this._users().filter((u) => !u.active));
+  readonly error = computed<string | null>(() => {
+    const u = this._usersState();
+    const s = this._selectedUserState();
+    if (u.status === 'error') return u.error;
+    if (s.status === 'error') return s.error;
+    return null;
+  });
 
-  // ── Métodos públicos ───────────────────────────────────────────────
+  readonly selectedUser = computed(() => {
+    const s = this._selectedUserState();
+    return s.status === 'success' ? s.data : null;
+  });
+
+  readonly activeUsers = computed(() => this.users().filter((u) => u.active));
+  readonly inactiveUsers = computed(() => this.users().filter((u) => !u.active));
 
   loadUsers(params: UserListParams = {}): void {
-    this._loading.set(true);
-    this._error.set(null);
+    this._usersState.set({ status: 'loading' });
 
     const queryParams: Record<string, number> = {
       skip: params.skip ?? 0,
@@ -49,91 +65,95 @@ export class UserService {
       .get<PaginatedResponse<User>>('/users', queryParams)
       .subscribe({
         next: (res) => {
-          this._users.set(res.data);
+          this._usersState.set({ status: 'success', data: res.data });
           this._total.set(res.total);
         },
-        error: (err) => this._error.set(err.message),
-        complete: () => this._loading.set(false),
+        error: (err) => this._usersState.set({ status: 'error', error: err.message }),
       });
   }
 
   getById(id: string): Observable<User> {
-    this._loading.set(true);
-    this._error.set(null);
+    this._selectedUserState.set({ status: 'loading' });
     return this.api.get<User>(`/users/${id}`).pipe(
       tap({
-        next: (user) => this._selectedUser.set(user),
-        error: (err) => this._error.set(err.message),
+        next: (user) => this._selectedUserState.set({ status: 'success', data: user }),
+        error: (err) => this._selectedUserState.set({ status: 'error', error: err.message }),
       }),
-      finalize(() => this._loading.set(false)),
     );
   }
 
   create(payload: UserCreate): Observable<User> {
-    this._loading.set(true);
-    this._error.set(null);
+    this._mutating.set(true);
     return this.api.post<User>('/users', payload).pipe(
       tap({
-        next: (user) => this._users.update((list) => [...list, user]),
-        error: (err) => this._error.set(err.message),
+        next: (user) =>
+          this._usersState.update((s) =>
+            s.status === 'success' ? { ...s, data: [...s.data, user] } : s,
+          ),
+        error: (err) => this._usersState.set({ status: 'error', error: err.message }),
       }),
-      finalize(() => this._loading.set(false)),
+      finalize(() => this._mutating.set(false)),
     );
   }
 
-  /** PUT /users/:id — reemplazo completo de todos los campos. */
   fullUpdate(id: string, payload: UserUpdate): Observable<User> {
-    this._loading.set(true);
-    this._error.set(null);
+    this._mutating.set(true);
     return this.api.put<User>(`/users/${id}`, payload).pipe(
       tap({
         next: (updated) => {
-          this._users.update((list) =>
-            list.map((u) => (u.id === id ? updated : u)),
+          this._usersState.update((s) =>
+            s.status === 'success'
+              ? { ...s, data: s.data.map((u) => (u.id === id ? updated : u)) }
+              : s,
           );
-          this._selectedUser.set(updated);
+          this._selectedUserState.set({ status: 'success', data: updated });
         },
-        error: (err) => this._error.set(err.message),
+        error: (err) => this._usersState.set({ status: 'error', error: err.message }),
       }),
-      finalize(() => this._loading.set(false)),
+      finalize(() => this._mutating.set(false)),
     );
   }
 
-  /** PATCH /users/:id — actualización parcial (ej: solo active). */
-  update(id: string, payload: UserUpdate): Observable<User> {
-    this._loading.set(true);
-    this._error.set(null);
+  update(id: string, payload: UserPatch): Observable<User> {
+    this._mutating.set(true);
     return this.api.patch<User>(`/users/${id}`, payload).pipe(
       tap({
         next: (updated) => {
-          this._users.update((list) =>
-            list.map((u) => (u.id === id ? updated : u)),
+          this._usersState.update((s) =>
+            s.status === 'success'
+              ? { ...s, data: s.data.map((u) => (u.id === id ? updated : u)) }
+              : s,
           );
-          this._selectedUser.set(updated);
+          this._selectedUserState.set({ status: 'success', data: updated });
         },
-        error: (err) => this._error.set(err.message),
+        error: (err) => this._usersState.set({ status: 'error', error: err.message }),
       }),
-      finalize(() => this._loading.set(false)),
+      finalize(() => this._mutating.set(false)),
     );
   }
 
   delete(id: string): Observable<void> {
-    this._loading.set(true);
-    this._error.set(null);
+    this._mutating.set(true);
     return this.api.delete<void>(`/users/${id}`).pipe(
       tap({
-        next: () => this._users.update((list) => list.filter((u) => u.id !== id)),
-        error: (err) => this._error.set(err.message),
+        next: () =>
+          this._usersState.update((s) =>
+            s.status === 'success'
+              ? { ...s, data: s.data.filter((u) => u.id !== id) }
+              : s,
+          ),
+        error: (err) => this._usersState.set({ status: 'error', error: err.message }),
       }),
-      finalize(() => this._loading.set(false)),
+      finalize(() => this._mutating.set(false)),
     );
   }
 
   clearSelectedUser(): void {
-    this._selectedUser.set(null);
+    this._selectedUserState.set({ status: 'idle' });
   }
 
   clearError(): void {
-    this._error.set(null);
+    this._usersState.update((s) => (s.status === 'error' ? { status: 'idle' } : s));
+    this._selectedUserState.update((s) => (s.status === 'error' ? { status: 'idle' } : s));
   }
 }

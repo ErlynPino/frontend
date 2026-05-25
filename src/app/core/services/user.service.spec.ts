@@ -56,6 +56,8 @@ describe('UserService', () => {
     expect(service.total()).toBe(0);
     expect(service.error()).toBeNull();
     expect(service.selectedUser()).toBeNull();
+    expect(service.usersState()).toEqual({ status: 'idle' });
+    expect(service.selectedUserState()).toEqual({ status: 'idle' });
   });
 
   // ── loadUsers ─────────────────────────────────────────────────────

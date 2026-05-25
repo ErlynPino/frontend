@@ -1,6 +1,13 @@
 /** Roles permitidos en el sistema (debe coincidir con UserRole del backend). */
 export type UserRole = 'admin' | 'user' | 'guest';
 
+/** Patrón RemoteData — encapsula el ciclo de vida completo de una petición asíncrona. */
+export type RemoteData<T> =
+  | { status: 'idle' }
+  | { status: 'loading' }
+  | { status: 'success'; data: T }
+  | { status: 'error'; error: string };
+
 /** Entidad de usuario devuelta por la API. Refleja UserResponse del backend. */
 export interface User {
   id: string;           // UUID
@@ -24,7 +31,7 @@ export interface UserCreate {
   active?: boolean;
 }
 
-/** Payload para actualización de usuario (PUT/PATCH /users/:id). */
+/** Payload para actualización de usuario (PUT /users/:id) — reemplazo completo. */
 export interface UserUpdate {
   username?: string;
   email?: string;
@@ -33,6 +40,9 @@ export interface UserUpdate {
   role?: UserRole;
   active?: boolean;
 }
+
+/** Payload para actualización parcial (PATCH /users/:id) — campos modificables sin PUT. */
+export type UserPatch = Partial<Pick<UserCreate, 'active' | 'role' | 'username'>>;
 
 /** Respuesta paginada genérica de la API. */
 export interface PaginatedResponse<T> {

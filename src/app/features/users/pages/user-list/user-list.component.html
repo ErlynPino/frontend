@@ -130,6 +130,7 @@
                   [rounded]="true"
                   pTooltip="Ver detalle"
                   tooltipPosition="top"
+                  [ariaLabel]="'Ver detalle de ' + user.username"
                   (onClick)="viewUser(user)"
                 />
                 <p-button
@@ -139,6 +140,7 @@
                   [rounded]="true"
                   pTooltip="Editar"
                   tooltipPosition="top"
+                  [ariaLabel]="'Editar usuario ' + user.username"
                   (onClick)="editUser(user)"
                 />
                 <p-button
@@ -148,6 +150,7 @@
                   [rounded]="true"
                   pTooltip="Eliminar"
                   tooltipPosition="top"
+                  [ariaLabel]="'Eliminar usuario ' + user.username"
                   (onClick)="confirmDelete(user)"
                 />
                 <p-button
@@ -157,6 +160,7 @@
                   [rounded]="true"
                   [pTooltip]="user.active ? 'Desactivar' : 'Activar'"
                   tooltipPosition="top"
+                  [ariaLabel]="(user.active ? 'Desactivar usuario ' : 'Activar usuario ') + user.username"
                   (onClick)="toggleStatus(user)"
                 />
               </div>

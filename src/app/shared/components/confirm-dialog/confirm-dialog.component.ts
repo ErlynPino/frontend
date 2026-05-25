@@ -1,4 +1,4 @@
-import { Component, input, model, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, model, output } from '@angular/core';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
 
@@ -6,6 +6,7 @@ export type ConfirmSeverity = 'success' | 'info' | 'warn' | 'danger' | 'secondar
 
 @Component({
   selector: 'app-confirm-dialog',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './confirm-dialog.component.html',
   styleUrl: './confirm-dialog.component.scss',
   standalone: true,

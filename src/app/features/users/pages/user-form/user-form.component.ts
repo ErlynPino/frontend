@@ -1,4 +1,4 @@
-import { Component, inject, input, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
@@ -24,6 +24,7 @@ const ROLE_DESCRIPTIONS: Record<string, string> = {
 
 @Component({
   selector: 'app-user-form',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './user-form.component.html',
   styleUrl: './user-form.component.scss',
   imports: [

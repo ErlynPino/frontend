@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 
 interface NavItem {
@@ -14,6 +14,7 @@ interface NavSection {
 
 @Component({
   selector: 'app-sidebar',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.scss',
   imports: [RouterLink, RouterLinkActive],

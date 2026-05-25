@@ -1,4 +1,4 @@
-import { Component, inject, input, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
@@ -11,6 +11,7 @@ import { UserRole } from '../../../../core/models/user.model';
 
 @Component({
   selector: 'app-user-detail',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './user-detail.component.html',
   styleUrl: './user-detail.component.scss',
   imports: [

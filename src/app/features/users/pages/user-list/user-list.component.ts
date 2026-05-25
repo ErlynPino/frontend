@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
@@ -22,6 +22,7 @@ interface DialogConfig {
 
 @Component({
   selector: 'app-user-list',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './user-list.component.html',
   styleUrl: './user-list.component.scss',
   imports: [

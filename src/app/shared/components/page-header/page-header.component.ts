@@ -1,8 +1,9 @@
-import { Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 
 @Component({
   selector: 'app-page-header',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './page-header.component.html',
   styleUrl: './page-header.component.scss',
   imports: [ButtonModule],

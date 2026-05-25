@@ -2,7 +2,7 @@ steps:
   - name: "node:22"
     id: Install
     entrypoint: npm
-    args: ["ci"]
+    args: ["install", "--no-audit", "--no-fund"]
 
   - name: "node:22"
     id: Test

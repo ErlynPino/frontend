@@ -101,7 +101,7 @@ describe('UserFormComponent', () => {
     expect(component.roleDescriptions['moderator']).toBeFalsy();
   });
 
-  it('en creación, submit válido llama create()', () => {
+  it('en creación, submit válido abre el diálogo de confirmación', () => {
     component.form.patchValue({
       username: 'newuser',
       email: 'new@example.com',
@@ -111,10 +111,23 @@ describe('UserFormComponent', () => {
       active: true,
     });
     component.submit();
+    expect(component.dialogVisible()).toBe(true);
+  });
+
+  it('al confirmar en modo creación, llama create()', () => {
+    component.form.patchValue({
+      username: 'newuser',
+      email: 'new@example.com',
+      first_name: 'New',
+      last_name: 'User',
+      role: 'user',
+      active: true,
+    });
+    component.onConfirmed();
     expect(userServiceMock.create).toHaveBeenCalled();
   });
 
-  it('en edición, submit válido llama fullUpdate() (PUT)', () => {
+  it('en edición, submit válido abre el diálogo de confirmación', () => {
     fixture.componentRef.setInput('id', 'uuid-1');
     fixture.detectChanges();
     component.form.patchValue({
@@ -126,6 +139,21 @@ describe('UserFormComponent', () => {
       active: false,
     });
     component.submit();
+    expect(component.dialogVisible()).toBe(true);
+  });
+
+  it('al confirmar en modo edición, llama fullUpdate() (PUT)', () => {
+    fixture.componentRef.setInput('id', 'uuid-1');
+    fixture.detectChanges();
+    component.form.patchValue({
+      username: 'edituser',
+      email: 'edit@example.com',
+      first_name: 'Edit',
+      last_name: 'User',
+      role: 'admin',
+      active: false,
+    });
+    component.onConfirmed();
     expect(userServiceMock.fullUpdate).toHaveBeenCalled();
   });
 });

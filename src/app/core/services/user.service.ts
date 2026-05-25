@@ -19,6 +19,7 @@ export class UserService {
   private readonly _selectedUserState = signal<RemoteData<User>>({ status: 'idle' });
   private readonly _total = signal<number>(0);
   private readonly _mutating = signal<boolean>(false);
+  private _cacheStale = false;
 
   readonly usersState = this._usersState.asReadonly();
   readonly selectedUserState = this._selectedUserState.asReadonly();
@@ -54,6 +55,8 @@ export class UserService {
   readonly inactiveUsers = computed(() => this.users().filter((u) => !u.active));
 
   loadUsers(params: UserListParams = {}): void {
+    if (this.users().length > 0 && !this._cacheStale) return;
+    this._cacheStale = false;
     this._usersState.set({ status: 'loading' });
 
     const queryParams: Record<string, number> = {
@@ -86,10 +89,12 @@ export class UserService {
     this._mutating.set(true);
     return this.api.post<User>('/users', payload).pipe(
       tap({
-        next: (user) =>
+        next: (user) => {
           this._usersState.update((s) =>
             s.status === 'success' ? { ...s, data: [...s.data, user] } : s,
-          ),
+          );
+          this._cacheStale = true;
+        },
         error: (err) => this._usersState.set({ status: 'error', error: err.message }),
       }),
       finalize(() => this._mutating.set(false)),
@@ -107,6 +112,7 @@ export class UserService {
               : s,
           );
           this._selectedUserState.set({ status: 'success', data: updated });
+          this._cacheStale = true;
         },
         error: (err) => this._usersState.set({ status: 'error', error: err.message }),
       }),
@@ -125,6 +131,7 @@ export class UserService {
               : s,
           );
           this._selectedUserState.set({ status: 'success', data: updated });
+          this._cacheStale = true;
         },
         error: (err) => this._usersState.set({ status: 'error', error: err.message }),
       }),
@@ -136,12 +143,14 @@ export class UserService {
     this._mutating.set(true);
     return this.api.delete<void>(`/users/${id}`).pipe(
       tap({
-        next: () =>
+        next: () => {
           this._usersState.update((s) =>
             s.status === 'success'
               ? { ...s, data: s.data.filter((u) => u.id !== id) }
               : s,
-          ),
+          );
+          this._cacheStale = true;
+        },
         error: (err) => this._usersState.set({ status: 'error', error: err.message }),
       }),
       finalize(() => this._mutating.set(false)),

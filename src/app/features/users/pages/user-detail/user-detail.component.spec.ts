@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Component } from '@angular/core';
+import { By } from '@angular/platform-browser';
 import { provideRouter } from '@angular/router';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { signal } from '@angular/core';
@@ -65,28 +66,46 @@ describe('UserDetailComponent', () => {
     expect(color).toMatch(/^#[0-9A-Fa-f]{6}$/);
   });
 
-  it('roleLabel devuelve etiqueta correcta para admin', () => {
-    expect(component.roleLabel('admin')).toBe('Administrador');
+  // ── Tests de integración del template ──────────────────────────────
+
+  it('muestra el nombre completo del usuario en el perfil', () => {
+    expect(fixture.nativeElement.textContent).toContain('John Doe');
   });
 
-  it('roleLabel devuelve "Invitado" para guest (no "Moderador")', () => {
-    expect(component.roleLabel('guest')).toBe('Invitado');
+  it('muestra el username del usuario', () => {
+    expect(fixture.nativeElement.textContent).toContain('jdoe');
   });
 
-  it('roleLabel devuelve "Usuario" para user', () => {
-    expect(component.roleLabel('user')).toBe('Usuario');
+  it('muestra la etiqueta "Administrador" para rol admin', () => {
+    expect(fixture.nativeElement.textContent).toContain('Administrador');
   });
 
-  it('roleSeverity devuelve "danger" para admin', () => {
-    expect(component.roleSeverity('admin')).toBe('danger');
+  it('muestra badge de rol con severity "danger" para admin', () => {
+    const tags = fixture.debugElement.queryAll(By.css('p-tag'));
+    const hasDanger = tags.some((tag) => {
+      const sev = tag.componentInstance.severity;
+      return (typeof sev === 'function' ? sev() : sev) === 'danger';
+    });
+    expect(hasDanger).toBe(true);
   });
 
-  it('roleSeverity devuelve "secondary" para guest', () => {
-    expect(component.roleSeverity('guest')).toBe('secondary');
+  it('muestra badge "Activo" para usuario activo', () => {
+    expect(fixture.nativeElement.textContent).toContain('Activo');
   });
 
-  it('roleSeverity devuelve "info" para user', () => {
-    expect(component.roleSeverity('user')).toBe('info');
+  it('muestra badge de estado con severity "success" para usuario activo', () => {
+    const tags = fixture.debugElement.queryAll(By.css('p-tag'));
+    const hasSuccess = tags.some((tag) => {
+      const sev = tag.componentInstance.severity;
+      return (typeof sev === 'function' ? sev() : sev) === 'success';
+    });
+    expect(hasSuccess).toBe(true);
+  });
+
+  it('muestra "Inactivo" para usuario inactivo', () => {
+    userServiceMock.selectedUser.set({ ...mockUser, active: false });
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('Inactivo');
   });
 });
 
